@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1013376702973",
+    "project_id": "dip-app-c7e68",
+    "storage_bucket": "dip-app-c7e68.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1013376702973:android:1fe2ae074e2efc9fa3e194",
+        "android_client_info": {
+          "package_name": "com.ntu.dip_app_2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOlJwd3RCHkhlbaO443sdOkWiYROmgCw8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
