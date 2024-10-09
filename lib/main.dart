@@ -1,9 +1,13 @@
+import 'package:dip_app_2/services/auth/auth_wrapper.dart';
+import 'package:dip_app_2/services/auth/login_or_register.dart';
 import 'package:dip_app_2/firebase_options.dart';
-import 'package:dip_app_2/screens/home_page.dart';
-import 'package:dip_app_2/screens/login_page.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:dip_app_2/screens/home/home.dart';
+import 'package:dip_app_2/screens/profile/profile.dart';
+import 'package:dip_app_2/screens/users/users.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:dip_app_2/theme/light_mode.dart' as light_theme;
+import 'package:dip_app_2/theme/dark_mode.dart' as dark_theme;
 
 
 Future<void> main() async {
@@ -23,24 +27,16 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Microsoft Auth Test',
-      home: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          if(snapshot.connectionState == ConnectionState.waiting) {
-            // while the snapshot is waiting, show a loading spinner
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasData) {
-            // If user is signed in
-            final user = snapshot.data;
-            return HomePage(user: user);
-          } else {
-            // if user is not signed in
-            return const LoginPage();
-          }
-        }
-      ),
+      home: const AuthWrapper(),
+      theme: light_theme.lightMode,
+      darkTheme: dark_theme.darkMode,
+      routes: {
+        '/login_or_register':(context) => const LoginOrRegister(),
+        '/home':(context) => const HomePage(),
+        '/profile':(context) => const ProfilePage(),
+        '/users':(context) => UsersPage(),
+        '/auth_wrapper': (context) => const AuthWrapper(),
+      }
     );
   }
 }
