@@ -37,6 +37,8 @@ class AuthWrapper extends StatelessWidget {
 
           // User is logged in
           User? user = snapshot.data;
+          
+          // TODO: Remove the comment to activate verify email func
           /*
           // Check if the user's email is verified
           if (user != null && !user.emailVerified) {
@@ -44,6 +46,7 @@ class AuthWrapper extends StatelessWidget {
             return const VerifyEmailPage();
           }
           */
+        
           if (user != null) {
             return FutureBuilder<bool>(
               future: _checkProfileComplete(user.uid),

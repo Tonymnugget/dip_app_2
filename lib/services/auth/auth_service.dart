@@ -15,7 +15,7 @@ class AuthService {
     return _auth.currentUser;
   }
 
-  Future<UserCredential?> signup(String username, email, password) async {
+  Future<UserCredential?> signup(String name, email, password) async {
     
     // Define the RegExp to match 'username@e.ntu.edu.sg'
     final RegExp emailRegex = RegExp(r'^[A-Za-z0-9]+@e\.ntu\.edu\.sg$', caseSensitive: false);
@@ -50,7 +50,7 @@ class AuthService {
 
           _firestore.collection("users").doc(uid).set({
             'uid': uid,
-            'username': username,
+            'name': name,
             'profileComplete': false,
           },
           SetOptions(merge: true)  // Add this to merge data instead of overwriting

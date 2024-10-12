@@ -1,3 +1,4 @@
+import 'package:dip_app_2/screens/matching/filter.dart';
 import 'package:dip_app_2/services/auth/auth_wrapper.dart';
 import 'package:dip_app_2/services/auth/login_or_register.dart';
 import 'package:dip_app_2/firebase_options.dart';
@@ -36,6 +37,7 @@ class MyApp extends StatelessWidget {
         '/profile':(context) => const ProfilePage(),
         '/users':(context) => UsersPage(),
         '/auth_wrapper': (context) => const AuthWrapper(),
+        '/filter': (context) => FilterPage(),
       }
     );
   }

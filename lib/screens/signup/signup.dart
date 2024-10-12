@@ -8,7 +8,7 @@ class SignupPage extends StatelessWidget {
   //text controllers
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
 
   // tap to go to login page
   final void Function()? onTap;
@@ -22,7 +22,7 @@ class SignupPage extends StatelessWidget {
 
     try {
       authService.signup(
-        _usernameController.text, 
+        _nameController.text, 
         _emailController.text, 
         _passwordController.text,
       );
@@ -65,9 +65,9 @@ class SignupPage extends StatelessWidget {
           
               // username textfield
               MyTextField(
-                hintText: "Username", 
+                hintText: "Name", 
                 obscureText: false, 
-                controller: _usernameController,
+                controller: _nameController,
               ),
 
               const SizedBox(height: 10),

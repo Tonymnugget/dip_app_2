@@ -1,10 +1,12 @@
 import 'package:dip_app_2/components/my_button.dart';
 import 'package:dip_app_2/components/my_dropdown.dart';
-import 'package:dip_app_2/components/my_textfield.dart';
+import 'package:dip_app_2/components/user_image_picker.dart';
 import 'package:dip_app_2/services/auth/auth_service.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:io';
 
 class ProfileEditPage extends StatefulWidget {
   
@@ -15,10 +17,8 @@ class ProfileEditPage extends StatefulWidget {
 }
 
 class _ProfileEditPageState extends State<ProfileEditPage> {
-  // text controllers
-  final TextEditingController _nameController = TextEditingController();
 
-  // initializing variables
+  // initializing strings
   String? selectedYear;
   String? selectedCourse;
   String? selectedCountry;
@@ -28,6 +28,9 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
   String? selectedLanguages;
   String? selectedStudentType;
 
+  // file
+  File? _selectedImage;
+
   Future<void> completeProfile(BuildContext context) async {
     // get AuthService
     final authService = AuthService();
@@ -36,8 +39,18 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
     User? user = authService.getCurrentUser();
 
     if (user != null) {
+      String? imageUrl;
+      // upload profile image if selected
+      // access globally available instance of class then call method ref, access to cloud
+      if (_selectedImage != null) {
+        final storageref = FirebaseStorage.instance.ref().child('user_images').child('${user.uid}.jpg'); 
+        
+        // call a putFile method to upload the file
+        await storageref.putFile(_selectedImage!);
+        imageUrl = await storageref.getDownloadURL();
+      }
+
       await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-        'name': _nameController.text,
         'year': selectedYear,
         'course': selectedCourse,
         'country': selectedCountry,
@@ -47,6 +60,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
         'languages': selectedLanguages,
         'studentType': selectedStudentType,
         'profileComplete': true,  // Set profile as complete
+        'imageUrl': imageUrl ?? '',
       }, SetOptions(merge: true));
 
       // Navigate to HomePage after completing the profile
@@ -61,10 +75,12 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
       body: Center(
         child: ListView(
           children: [
-            MyTextField(
-              hintText: 'Name',
-              obscureText: false, 
-              controller: _nameController,
+            UserImagePicker(
+              onPickImage: (pickedImage) {
+                setState(() {
+                  _selectedImage = pickedImage;
+                });
+              },
             ),
 
             MyDropDown(
