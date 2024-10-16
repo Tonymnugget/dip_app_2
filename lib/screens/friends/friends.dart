@@ -126,6 +126,8 @@ class FriendsPage extends StatelessWidget {
               builder: (context) => ChatPage(
                 receiverEmail: friendData["email"],
                 receiverID: friendData["uid"],
+                receiverName: friendData["name"],
+                profileImageUrl: friendData['imageUrl'],
               ),
             ),
           );

@@ -59,18 +59,21 @@ class UsersPage extends StatelessWidget {
 
         // Return a list view of users
         return ListView(
-          children: snapshot.data!.map<Widget>((userData) => _buildUserListItem(userData, context)).toList(),
+          children: snapshot.data!
+              .map<Widget>((userData) => _buildUserListItem(userData, context))
+              .toList(),
         );
       },
     );
   }
 
   // Build individual list tile for each user
-  Widget _buildUserListItem(Map<String, dynamic> userData, BuildContext context) {
+  Widget _buildUserListItem(
+      Map<String, dynamic> userData, BuildContext context) {
     // Display all users except the current logged-in user
     if (userData["email"] != _authService.getCurrentUser()!.email) {
       return UserTile(
-        text: userData["email"], 
+        text: userData["email"],
         onTap: () {
           // Handle tile tap (optional)
           print('Tapped on ${userData["email"]}');
@@ -86,6 +89,8 @@ class UsersPage extends StatelessWidget {
                 builder: (context) => ChatPage(
                   receiverEmail: userData["email"],
                   receiverID: userData["uid"],
+                  receiverName: userData["name"],
+                  profileImageUrl: userData["imageUrl"],
                 ),
               ),
             );

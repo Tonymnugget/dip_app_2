@@ -17,7 +17,10 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      return web;
+      throw UnsupportedError(
+        'DefaultFirebaseOptions have not been configured for web - '
+        'you can reconfigure this by running the FlutterFire CLI again.',
+      );
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -25,9 +28,15 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        return macos;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for macos - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.windows:
-        return windows;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for windows - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -40,21 +49,12 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAgLELKfS6-QyOa9o6R7AlwzasVm6yTM2w',
-    appId: '1:1013376702973:web:630cabfb2eb89a50a3e194',
-    messagingSenderId: '1013376702973',
-    projectId: 'dip-app-c7e68',
-    authDomain: 'dip-app-c7e68.firebaseapp.com',
-    storageBucket: 'dip-app-c7e68.appspot.com',
-    measurementId: 'G-GC77ZMZ8BC',
-  );
-
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDOlJwd3RCHkhlbaO443sdOkWiYROmgCw8',
     appId: '1:1013376702973:android:1fe2ae074e2efc9fa3e194',
     messagingSenderId: '1013376702973',
     projectId: 'dip-app-c7e68',
+    databaseURL: 'https://dip-app-c7e68-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'dip-app-c7e68.appspot.com',
   );
 
@@ -63,26 +63,9 @@ class DefaultFirebaseOptions {
     appId: '1:1013376702973:ios:343c6d04410af4e8a3e194',
     messagingSenderId: '1013376702973',
     projectId: 'dip-app-c7e68',
+    databaseURL: 'https://dip-app-c7e68-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'dip-app-c7e68.appspot.com',
-    iosBundleId: 'com.ntu.dipApp2',
+    iosBundleId: 'com.example.dipApp2',
   );
 
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyBjxkP_OLymE8HmUUkq9a-nCH8NAOU1uRo',
-    appId: '1:1013376702973:ios:343c6d04410af4e8a3e194',
-    messagingSenderId: '1013376702973',
-    projectId: 'dip-app-c7e68',
-    storageBucket: 'dip-app-c7e68.appspot.com',
-    iosBundleId: 'com.ntu.dipApp2',
-  );
-
-  static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyAgLELKfS6-QyOa9o6R7AlwzasVm6yTM2w',
-    appId: '1:1013376702973:web:7c942afd5e51d0d2a3e194',
-    messagingSenderId: '1013376702973',
-    projectId: 'dip-app-c7e68',
-    authDomain: 'dip-app-c7e68.firebaseapp.com',
-    storageBucket: 'dip-app-c7e68.appspot.com',
-    measurementId: 'G-M5CF2GV830',
-  );
 }
