@@ -1,9 +1,10 @@
 import 'package:dip_app_2/screens/matching/filter_results.dart';
 import 'package:dip_app_2/services/database/firestore_service.dart';
 import 'package:flutter/material.dart';
+import 'package:dip_app_2/components/my_dropdown.dart'; // Import your custom dropdown
+import 'package:dip_app_2/components/my_multiselect.dart'; // Import your multi-select widget
 
 class FilterPage extends StatefulWidget {
-
   const FilterPage({super.key});
 
   @override
@@ -11,7 +12,7 @@ class FilterPage extends StatefulWidget {
 }
 
 class _FilterPageState extends State<FilterPage> {
-  FirebaseService firebaseService = FirebaseService();
+  FirestoreService firestoreService = FirestoreService();
   List<Map<String, dynamic>> filteredUsers = [];
 
   // User-selected filters
@@ -28,69 +29,40 @@ class _FilterPageState extends State<FilterPage> {
 
   // Available options for languages and interests
   final List<String> languages = [
-    'N/A',
-    'English', 
-    'Chinese',
-    'Tamil',
-    'Malay',
-    'Spanish',
-    'French',
-    'Japanese',
-    'Korean',
-    'German'];
+    'N/A', 'English', 'Chinese', 'Tamil', 'Malay', 'Spanish', 'French', 'Japanese', 'Korean', 'German'
+  ];
+
   final List<String> interests = [
-    'N/A',
-    'Coding',
-    'Traveling', 
-    'Chemistry',
-    'Photography',
-    'Piano',
-    'Swimming',
-    'Cycling',
-    'Finance',
-    'Literature',
-    'Ecology',
-    'Volunteering',
-    'Investing',
-    'Cooking',
-    'Guitar',
-    'Reading',
-    'Running',
-    'Yoga',
-    'Soccer',
-    'Tennis',
-    'Basketball',
-    'Painting',
-    'Chess',
-    'Hiking',
-    'Construction',
-    'Gaming',
-    'Robotics'];
+    'N/A', 'Coding', 'Traveling', 'Chemistry', 'Photography', 'Piano', 'Swimming', 'Cycling', 'Finance',
+    'Literature', 'Ecology', 'Volunteering', 'Investing', 'Cooking', 'Guitar', 'Reading', 'Running', 'Yoga', 
+    'Soccer', 'Tennis', 'Basketball', 'Painting', 'Chess', 'Hiking', 'Construction', 'Gaming', 'Robotics'
+  ];
 
+  // Function to filter users
   void filterUsers() async {
-  List<Map<String, dynamic>> users = await firebaseService.getFilteredUsers(
-    gender: selectedGender != 'N/A' ? selectedGender : null,
-    course: selectedCourse != 'N/A' ? selectedCourse : null,
-    year: selectedYear != 'N/A' ? selectedYear : null,
-    hall: selectedHall != 'N/A' ? selectedHall : null,
-    studentType: selectedStudentType != 'N/A' ? selectedStudentType : null,
-    country: selectedCountry != 'N/A' ? selectedCountry : null,
-    selectedLanguages: selectedLanguages.isNotEmpty && !selectedLanguages.contains('N/A') 
-        ? selectedLanguages 
-        : null, // Ignore if empty or contains only 'N/A'
-    selectedInterests: selectedInterests.isNotEmpty && !selectedInterests.contains('N/A') 
-        ? selectedInterests 
-        : null, // Ignore if empty or contains only 'N/A'
-  );
+    List<Map<String, dynamic>> users = await firestoreService.getFilteredUsers(
+      gender: selectedGender != 'N/A' ? selectedGender : null,
+      course: selectedCourse != 'N/A' ? selectedCourse : null,
+      year: selectedYear != 'N/A' ? selectedYear : null,
+      hall: selectedHall != 'N/A' ? selectedHall : null,
+      studentType: selectedStudentType != 'N/A' ? selectedStudentType : null,
+      country: selectedCountry != 'N/A' ? selectedCountry : null,
+      selectedLanguages: selectedLanguages.isNotEmpty && !selectedLanguages.contains('N/A') 
+          ? selectedLanguages 
+          : null, // Ignore if empty or contains only 'N/A'
+      selectedInterests: selectedInterests.isNotEmpty && !selectedInterests.contains('N/A') 
+          ? selectedInterests 
+          : null, // Ignore if empty or contains only 'N/A'
+    );
 
-  // Navigate to FilterResultsPage with filtered users
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => FilterResultsPage(filteredUsers: users),
-    ),
-  );
-}
+    // Navigate to FilterResultsPage with filtered users
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => FilterResultsPage(filteredUsers: users),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,286 +73,108 @@ class _FilterPageState extends State<FilterPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 10),
-
-            // Filter for Gender
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Text('Gender:'),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: DropdownButton<String>(
-                value: selectedGender,
-                isExpanded: true,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedGender = newValue!;
-                  });
-                },
-                items: <String>['N/A', 'Male', 'Female'].map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-              ),
+            
+            // Using MyDropDown for Gender
+            MyDropDown(
+              hintText: 'Select Gender',
+              options: ['N/A', 'Male', 'Female'],
+              onChanged: (value) {
+                setState(() {
+                  selectedGender = value!;
+                });
+              },
             ),
 
-            // Filter for Course
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Text('Course:'),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: DropdownButton<String>(
-                value: selectedCourse,
-                isExpanded: true,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedCourse = newValue!;
-                  });
-                },
-                items: <String>[
-                  'N/A',
-                  'Electrical Engineering', 
-                  'Data Science', 
-                  'Economics', 
-                  'Information Systems', 
-                  'Finance',
-                  'Architecture',
-                  'Computer Science',
-                  'Humanities',
-                  'Biological Sciences',
-                  'Social Work',
-                  'Biomedical Engineering',
-                  'Business',
-                  'Mechanical Engineering',
-                  'Psychology',
-                  'Chemical Engineering',
-                  'Aerospace Engineering',
-                  'Environmental Science',
-                  'Civil Engineering',
-                  'Mathematics'].map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-              ),
+            // Using MyDropDown for Course
+            MyDropDown(
+              hintText: 'Select Course',
+              options: [
+                'N/A', 'Electrical Engineering', 'Data Science', 'Economics', 'Information Systems', 'Finance',
+                'Architecture', 'Computer Science', 'Humanities', 'Biological Sciences', 'Social Work', 
+                'Biomedical Engineering', 'Business', 'Mechanical Engineering', 'Psychology', 'Chemical Engineering',
+                'Aerospace Engineering', 'Environmental Science', 'Civil Engineering', 'Mathematics'
+              ],
+              onChanged: (value) {
+                setState(() {
+                  selectedCourse = value!;
+                });
+              },
             ),
 
-            // Filter for Year
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Text('Year:'),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: DropdownButton<String>(
-                value: selectedYear,
-                isExpanded: true,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedYear = newValue!;
-                  });
-                },
-                items: <String>['N/A', 'Year 1', 'Year 2', 'Year 3', 'Year 4'].map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-              ),
+            // Using MyDropDown for Year
+            MyDropDown(
+              hintText: 'Select Year',
+              options: ['N/A', 'Year 1', 'Year 2', 'Year 3', 'Year 4'],
+              onChanged: (value) {
+                setState(() {
+                  selectedYear = value!;
+                });
+              },
             ),
 
-            // Filter for Hall
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Text('Hall:'),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: DropdownButton<String>(
-                value: selectedHall,
-                isExpanded: true,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedHall = newValue!;
-                  });
-                },
-                items: <String>[
-                  'N/A', 
-                  'Hall 1', 
-                  'Hall 2', 
-                  'Hall 3', 
-                  'Hall 4', 
-                  'Hall 5',
-                  'Hall 6',
-                  'Hall 7',
-                  'Hall 8',
-                  'Hall 9',
-                  'Hall 10',
-                  'Hall 11',
-                  'Hall 12',
-                  'Hall 13',
-                  'Hall 14',
-                  'Hall 15',
-                  'Hall 16',
-                  'Maple Residency',
-                  'Tanjong',
-                  'Pioneer',
-                  'Tamarind',
-                  'Cresent',
-                  'Saraca'].map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-              ),
+            // Using MyDropDown for Hall
+            MyDropDown(
+              hintText: 'Select Hall',
+              options: [
+                'N/A', 'Hall 1', 'Hall 2', 'Hall 3', 'Hall 4', 'Hall 5', 'Hall 6', 'Hall 7', 'Hall 8', 'Hall 9', 
+                'Hall 10', 'Hall 11', 'Hall 12', 'Hall 13', 'Hall 14', 'Hall 15', 'Hall 16', 'Maple Residency',
+                'Tanjong', 'Pioneer', 'Tamarind', 'Cresent', 'Saraca'
+              ],
+              onChanged: (value) {
+                setState(() {
+                  selectedHall = value!;
+                });
+              },
             ),
 
-            // Filter for Student Type
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Text('Student Type:'),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: DropdownButton<String>(
-                value: selectedStudentType,
-                isExpanded: true,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedStudentType = newValue!;
-                  });
-                },
-                items: <String>['N/A', 'Local', 'International', 'Exchange'].map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-              ),
+            // Using MyDropDown for Student Type
+            MyDropDown(
+              hintText: 'Select Student Type',
+              options: ['N/A', 'Local', 'International', 'Exchange'],
+              onChanged: (value) {
+                setState(() {
+                  selectedStudentType = value!;
+                });
+              },
             ),
 
-            // Multi-select for Languages
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Text('Languages:'),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: GestureDetector(
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return StatefulBuilder(
-                        builder: (context, setState) {
-                          return AlertDialog(
-                            title: Text("Select Languages"),
-                            content: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: languages.map((language) {
-                                return CheckboxListTile(
-                                  title: Text(language),
-                                  value: selectedLanguages.contains(language),
-                                  onChanged: (bool? value) {
-                                    setState(() {
-                                      if (value == true) {
-                                        selectedLanguages.add(language);
-                                      } else {
-                                        selectedLanguages.remove(language);
-                                      }
-                                    });
-                                  },
-                                );
-                              }).toList(),
-                            ),
-                            actions: [
-                              TextButton(
-                                child: Text("OK"),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                  );
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(selectedLanguages.isNotEmpty ? selectedLanguages.join(", ") : "Select Languages"),
-                ),
-              ),
+            // Using MyDropDown for Country
+            MyDropDown(
+              hintText: 'Select Country',
+              options: [
+                'N/A', 'Singapore', 'Malaysia', 'India', 'Vietnam', 'Mexico', 'France', 'Australia', 'Japan',
+                'United States', 'Sweden', 'Canada', 'United Kingdom', 'China', 'Indonesia', 'South Korea',
+                'Spain', 'Germany', 'Thailand', 'Italy', 'Brazil', 'New Zealand'
+              ],
+              onChanged: (value) {
+                setState(() {
+                  selectedCountry = value!;
+                });
+              },
             ),
 
-            // Multi-select for Interests
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Text('Interests:'),
+            // Multi-select for Languages using MyMultiSelect
+            MyMultiSelect(
+              hintText: 'Select Languages',
+              options: languages,
+              selectedValues: selectedLanguages,
+              onSelectionChanged: (selectedValues) {
+                setState(() {
+                  selectedLanguages = selectedValues;
+                });
+              },
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: GestureDetector(
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return StatefulBuilder(
-                        builder: (context, setState) {
-                          return AlertDialog(
-                            title: Text("Select Interests"),
-                            content: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: interests.map((interest) {
-                                return CheckboxListTile(
-                                  title: Text(interest),
-                                  value: selectedInterests.contains(interest),
-                                  onChanged: (bool? value) {
-                                    setState(() {
-                                      if (value == true) {
-                                        selectedInterests.add(interest);
-                                      } else {
-                                        selectedInterests.remove(interest);
-                                      }
-                                    });
-                                  },
-                                );
-                              }).toList(),
-                            ),
-                            actions: [
-                              TextButton(
-                                child: Text("OK"),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                  );
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(selectedInterests.isNotEmpty ? selectedInterests.join(", ") : "Select Interests"),
-                ),
-              ),
+
+            // Multi-select for Interests using MyMultiSelect
+            MyMultiSelect(
+              hintText: 'Select Interests',
+              options: interests,
+              selectedValues: selectedInterests,
+              onSelectionChanged: (selectedValues) {
+                setState(() {
+                  selectedInterests = selectedValues;
+                });
+              },
             ),
 
             const SizedBox(height: 20),
@@ -392,27 +186,6 @@ class _FilterPageState extends State<FilterPage> {
                 child: const Text('Filter Users'),
               ),
             ),
-
-            const SizedBox(height: 20),
-
-            // Display filtered users
-            filteredUsers.isNotEmpty
-                ? Expanded(
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: filteredUsers.length,
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          title: Text(filteredUsers[index]['name']),
-                          subtitle: Text(filteredUsers[index]['course']),
-                        );
-                      },
-                    ),
-                  )
-                : const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: Text('No users found with the selected filters.'),
-                  ),
           ],
         ),
       ),

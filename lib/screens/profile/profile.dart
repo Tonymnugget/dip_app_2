@@ -1,20 +1,15 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dip_app_2/services/auth/auth_service.dart';
+import 'package:dip_app_2/services/database/firestore_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'profile__edit.dart';
 
 class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
+  
+  ProfilePage({super.key});
 
-  Future<Map<String, dynamic>?> _getProfileData(String uid) async {
-    // Query Firestore to retrieve profile information
-    final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
-    if (doc.exists) {
-      return doc.data();
-    }
-    return null;
-  }
+  // get FirestoreService
+  final FirestoreService firestoreService = FirestoreService();
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +47,7 @@ class ProfilePage extends StatelessWidget {
       body: user == null
           ? const Center(child: Text("No user logged in"))
           : FutureBuilder<Map<String, dynamic>?>(
-              future: _getProfileData(user.uid),
+              future: firestoreService.getProfileData(user.uid),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());

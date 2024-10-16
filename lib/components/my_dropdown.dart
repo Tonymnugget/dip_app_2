@@ -4,12 +4,14 @@ class MyDropDown extends StatefulWidget {
   final String hintText;
   final List<String> options;
   final Function(String?)? onChanged;  // The callback function to pass selected value
+  final String? initialValue;
 
   const MyDropDown({
     super.key,
     required this.hintText,
     required this.options,
     this.onChanged,
+    this.initialValue,
   });
 
   @override
@@ -18,6 +20,13 @@ class MyDropDown extends StatefulWidget {
 
 class _MyDropDownState extends State<MyDropDown> {
   String? selectedValue;  // Internal state for managing selected value
+
+  @override
+  void initState() {
+    super.initState();
+
+    selectedValue = widget.initialValue;
+  }
 
   @override
   Widget build(BuildContext context) {

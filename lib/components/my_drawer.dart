@@ -62,13 +62,13 @@ class MyDrawer extends StatelessWidget {
                 leading: Icon(
                   Icons.person_2, color: Theme.of(context).colorScheme.inversePrimary,
                 ),
-                title: const Text("M A T C H E D U S E R S"),
+                title: const Text("F R I E N D S"),
                 onTap: () {
                   // pop drawer
                   Navigator.pop(context);
 
                   // navigator to users page
-                  Navigator.pushNamed(context, '/users');
+                  Navigator.pushNamed(context, '/friends');
                 },
               ),
             ),

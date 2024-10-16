@@ -1,10 +1,11 @@
+import 'package:dip_app_2/screens/friends/friends.dart';
 import 'package:dip_app_2/screens/matching/filter.dart';
+import 'package:dip_app_2/screens/notifications/friend_request.dart';
 import 'package:dip_app_2/services/auth/auth_wrapper.dart';
 import 'package:dip_app_2/services/auth/login_or_register.dart';
 import 'package:dip_app_2/firebase_options.dart';
 import 'package:dip_app_2/screens/home/home.dart';
 import 'package:dip_app_2/screens/profile/profile.dart';
-import 'package:dip_app_2/screens/users/users.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:dip_app_2/theme/light_mode.dart' as light_theme;
@@ -34,10 +35,11 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login_or_register':(context) => const LoginOrRegister(),
         '/home':(context) => const HomePage(),
-        '/profile':(context) => const ProfilePage(),
-        '/users':(context) => UsersPage(),
+        '/profile':(context) => ProfilePage(),
+        '/friends':(context) => FriendsPage(),
         '/auth_wrapper': (context) => const AuthWrapper(),
         '/filter': (context) => FilterPage(),
+        '/friend_request': (context) => FriendRequestPage(),
       }
     );
   }

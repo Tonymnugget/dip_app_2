@@ -1,8 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class FirebaseService {
+class FirestoreService {
+
+  // get instance of auth & firestore
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  // TODO if the blockbelow not needed delete
+  /* 
   // Add a new user to Firestore
   Future<void> addUser(Map<String, dynamic> userData) async {
     await _firestore.collection('users').add(userData);
@@ -11,6 +17,16 @@ class FirebaseService {
   // Stream of all users for real-time updates
   Stream<QuerySnapshot> getUsersStream() {
     return _firestore.collection('users').snapshots();
+  }
+  */
+
+  Future<Map<String, dynamic>?> getProfileData(String uid) async {
+    // Query Firestore to retrieve profile information
+    final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+    if (doc.exists) {
+      return doc.data();
+    }
+    return null;
   }
 
   // Get filtered users based on the provided criteria
@@ -48,10 +64,157 @@ class FirebaseService {
     QuerySnapshot snapshot = await query.get();
     List<Map<String, dynamic>> filteredUsers = [];
 
-    snapshot.docs.forEach((doc) {
+    for (var doc in snapshot.docs) {
       filteredUsers.add(doc.data() as Map<String, dynamic>);
-    });
+    }
 
     return filteredUsers;
+  }
+
+  // Send a friend request
+  Future<void> sendFriendRequest(String receiverId) async {
+    User? currentUser = _auth.currentUser;
+    if (currentUser == null) return;
+
+    try {
+      // Add to current user's sentRequests
+      await _firestore
+          .collection('users')
+          .doc(currentUser.uid)
+          .collection('sentRequests')
+          .doc(receiverId)
+          .set({
+        'receiverId': receiverId,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      // Add to the target user's receivedRequests
+      await _firestore
+          .collection('users')
+          .doc(receiverId)
+          .collection('receivedRequests')
+          .doc(currentUser.uid)
+          .set({
+        'senderId': currentUser.uid,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      print('Error sending friend request: $e');
+    }
+  }
+
+  // Cancel a friend request
+  Future<void> cancelFriendRequest(String receiverId) async {
+    User? currentUser = _auth.currentUser;
+    if (currentUser == null) return;
+
+    try {
+      // Remove from current user's sentRequests
+      await _firestore
+          .collection('users')
+          .doc(currentUser.uid)
+          .collection('sentRequests')
+          .doc(receiverId)
+          .delete();
+
+      // Remove from the target user's receivedRequests
+      await _firestore
+          .collection('users')
+          .doc(receiverId)
+          .collection('receivedRequests')
+          .doc(currentUser.uid)
+          .delete();
+    } catch (e) {
+      print('Error canceling friend request: $e');
+    }
+  }
+
+  // Check if a friend request is already sent
+  Future<bool> isFriendRequestSent(String receiverId) async {
+    User? currentUser = _auth.currentUser;
+    if (currentUser == null) return false;
+
+    final sentRequestRef = _firestore
+        .collection('users')
+        .doc(currentUser.uid)
+        .collection('sentRequests')
+        .doc(receiverId);
+
+    final requestDoc = await sentRequestRef.get();
+    return requestDoc.exists;
+  }
+
+  // Function to accept a friend request
+  Future<void> acceptFriendRequest(String senderId, currentUserId) async {
+
+    try {
+      // Add sender to current user's 'friends' collection
+      await _firestore
+          .collection('users')
+          .doc(currentUserId)
+          .collection('friends')
+          .doc(senderId)
+          .set({
+        'friendId': senderId,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      // Add current user to sender's 'friends' collection
+      await _firestore
+          .collection('users')
+          .doc(senderId)
+          .collection('friends')
+          .doc(currentUserId)
+          .set({
+        'friendId': currentUserId,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      // Remove the friend request from the current user's 'receivedRequests'
+      await _firestore
+          .collection('users')
+          .doc(currentUserId)
+          .collection('receivedRequests')
+          .doc(senderId)
+          .delete();
+
+      // Remove the friend request from the sender's 'sentRequests'
+      await _firestore
+          .collection('users')
+          .doc(senderId)
+          .collection('sentRequests')
+          .doc(currentUserId)
+          .delete();
+
+      print('Friend request from $senderId accepted');
+    } catch (e) {
+      print('Error accepting friend request: $e');
+      throw e;
+    }
+  }
+  
+  // Function to delete the friend request
+  Future<void> deleteFriendRequest(String senderId, currentUserId) async {
+
+    try {
+      // Remove the friend request from the current user's 'receivedRequests'
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUserId)
+          .collection('receivedRequests')
+          .doc(senderId)
+          .delete();
+
+      // Remove the friend request from the sender's 'sentRequests'
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(senderId)
+          .collection('sentRequests')
+          .doc(currentUserId)
+          .delete();
+    } catch (e) {
+      print('Error deleting friend request: $e');
+      throw e;
+    }
   }
 }

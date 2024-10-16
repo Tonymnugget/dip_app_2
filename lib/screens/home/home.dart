@@ -1,9 +1,12 @@
 import 'package:dip_app_2/components/my_drawer.dart';
+import 'package:dip_app_2/screens/notifications/notifcations.dart';
 import 'package:flutter/material.dart';
 import 'package:dip_app_2/components/my_icon_button.dart'; // Import the button component
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
+
+  // TODO add block user, report user, delete chat, unfriend, if friend do not show in filter same for block and ***report
 
   @override
   Widget build(BuildContext context) {
@@ -19,27 +22,41 @@ class HomePage extends StatelessWidget {
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.grey,
         elevation: 0,
+
+        // NotificationPage
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.favorite),
+            tooltip: 'Notifcations',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => NotificationPage(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       drawer: const MyDrawer(),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: GridView.count(
-          crossAxisCount: 3, // Number of buttons per row
+          crossAxisCount: 1, // Number of buttons per row
           crossAxisSpacing: 10.0,
           mainAxisSpacing: 10.0,
           children: [
             MyIconButton(
               icon: Icons.people_alt_rounded,
+              size: 60,
               onTap: () {
                 Navigator.pushNamed(context, '/filter');
               },
             ),
             MyIconButton(
               icon: Icons.local_dining,
-              onTap: () {},
-            ),
-            MyIconButton(
-              icon: Icons.store,
+              size: 60,
               onTap: () {},
             ),
           ],
