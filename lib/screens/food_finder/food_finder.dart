@@ -1,3 +1,4 @@
+import 'package:dip_app_2/components/my_navigationbar.dart';
 import 'package:dip_app_2/screens/food_finder/canteens.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -8,7 +9,23 @@ class CategoryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Categories')),
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: AppBar(
+        title: Text(
+          'Food Finder',
+          style: TextStyle(
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onPrimary,
+          ),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        centerTitle: true,
+        iconTheme: IconThemeData(
+          color: Theme.of(context).colorScheme.tertiary,
+        ),
+      ),
+      bottomNavigationBar: MyNavigationBar(),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('categories').snapshots(),
         builder: (context, snapshot) {

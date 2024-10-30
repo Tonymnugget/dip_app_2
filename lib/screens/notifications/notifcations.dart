@@ -101,10 +101,9 @@ class _NotificationPageState extends State<NotificationPage> {
                 ? friendRequestDetails
                     .map((e) => e['name'])
                     .join(', ') // Display the first few names
-                : 'No friend requests', // Default text if no requests
-            leading: friendRequestDetails.isNotEmpty
-                ? _buildProfileImages() // Show stacked or single profile image(s)
-                : null,
+                : 'Accept or decline requests', // Default if no requests
+            leading:
+                _buildProfileImages(), // Show stacked or single profile image(s)
             onTap: () {
               // Go to friend request page when tile is tapped
               Navigator.pushNamed(context, '/friend_request');
@@ -116,44 +115,59 @@ class _NotificationPageState extends State<NotificationPage> {
     );
   }
 
-  // Build profile image(s) for the friend requests
   Widget _buildProfileImages() {
-    if (friendRequestDetails.length == 1) {
+    if (friendRequestDetails.isEmpty) {
+      // Handle the case when there are no friend requests
+      return CircleAvatar(
+        radius: 20,
+        backgroundColor: Colors.grey,
+        child: Icon(Icons.person_add_sharp, size: 20, color: Colors.white),
+      );
+    } else if (friendRequestDetails.length == 1) {
       // Show a single profile picture if there's only one request
       return CircleAvatar(
         radius: 20,
+        backgroundColor: Colors.grey,
         backgroundImage: friendRequestDetails[0]['imageUrl'] != null
             ? NetworkImage(friendRequestDetails[0]['imageUrl']!)
             : null,
-        backgroundColor: Colors.grey,
+        child: friendRequestDetails[0]['imageUrl'] == null
+            ? Icon(Icons.person, size: 20, color: Colors.white)
+            : null,
       );
     } else {
       // Stack the first two profile pictures if there are multiple requests
       return SizedBox(
-        width: 50,
-        height: 50,
+        width: 40,
+        height: 40,
         child: Stack(
           children: [
-            // Second user's image
+            // First user's image
             Positioned(
+              left: 0,
               child: CircleAvatar(
                 radius: 20,
-                foregroundImage: friendRequestDetails[1]['imageUrl'] != null
-                    ? NetworkImage(friendRequestDetails[1]['imageUrl']!)
-                    : null,
-                backgroundColor: Colors.grey,
-              ),
-            ),
-            // First user's image, slightly overlapped
-            Positioned(
-              left: 10,
-              top: 10,
-              child: CircleAvatar(
-                radius: 20,
-                foregroundImage: friendRequestDetails[0]['imageUrl'] != null
+                backgroundImage: friendRequestDetails[0]['imageUrl'] != null
                     ? NetworkImage(friendRequestDetails[0]['imageUrl']!)
                     : null,
                 backgroundColor: Colors.grey,
+                child: friendRequestDetails[0]['imageUrl'] == null
+                    ? Icon(Icons.person, size: 20, color: Colors.white)
+                    : null,
+              ),
+            ),
+            // Second user's image
+            Positioned(
+              right: 0,
+              child: CircleAvatar(
+                radius: 20,
+                backgroundImage: friendRequestDetails[1]['imageUrl'] != null
+                    ? NetworkImage(friendRequestDetails[1]['imageUrl']!)
+                    : null,
+                backgroundColor: Colors.grey,
+                child: friendRequestDetails[1]['imageUrl'] == null
+                    ? Icon(Icons.person, size: 20, color: Colors.white)
+                    : null,
               ),
             ),
           ],

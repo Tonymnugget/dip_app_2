@@ -1,6 +1,9 @@
+import 'package:dip_app_2/components/my_button_2.dart';
+import 'package:dip_app_2/components/my_navigationbar.dart';
 import 'package:dip_app_2/services/auth/auth_service.dart';
 import 'package:dip_app_2/services/database/firestore_service.dart';
 import 'package:flutter/material.dart';
+import 'package:dip_app_2/components/my_chip.dart';
 
 class UserDetailsPage extends StatefulWidget {
   final Map<String, dynamic> userData; // Selected user data
@@ -14,7 +17,8 @@ class UserDetailsPage extends StatefulWidget {
 class _UserDetailsPageState extends State<UserDetailsPage> {
   // state to track friend request status
   bool isFriendRequestSent = false;
-  final FirestoreService firestoreService = FirestoreService(); // Instance of FirestoreService
+  final FirestoreService firestoreService =
+      FirestoreService(); // Instance of FirestoreService
   final AuthService authService = AuthService();
 
   @override
@@ -36,7 +40,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
   Future<void> sendFriendRequest() async {
     final userId = widget.userData['uid'];
 
-  try {
+    try {
       await firestoreService.sendFriendRequest(userId);
       setState(() {
         isFriendRequestSent = true;
@@ -65,65 +69,162 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: Text(
-          "${widget.userData['name'] ?? 'User Profile'}",
+          'Select Filters',
           style: TextStyle(
-            color: Theme.of(context).colorScheme.inversePrimary,
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onPrimary,
           ),
         ),
-        backgroundColor: Colors.transparent,
-        foregroundColor: Colors.grey,
-        elevation: 0,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        centerTitle: true,
+        iconTheme: IconThemeData(
+          color: Theme.of(context).colorScheme.tertiary,
+        ),
       ),
+      bottomNavigationBar: MyNavigationBar(),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 30),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Display user profile picture if available
-            widget.userData['imageUrl'] != null
-              ? CircleAvatar(
-                  radius: 50,
-                  backgroundImage: NetworkImage(widget.userData['imageUrl']),
-                )
-              : const CircleAvatar(
-                  radius: 50,
-                  child: Icon(Icons.person, size: 50),
+            const SizedBox(height: 10),
+            // Profile Card
+            SizedBox(
+              width: 400,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  color: Theme.of(context).colorScheme.secondary,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
                 ),
-            const SizedBox(height: 16),
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  children: [
+                    // Profile Image and Edit Button
+                    if (widget.userData['imageUrl'] != null)
+                      CircleAvatar(
+                        radius: 60,
+                        backgroundImage:
+                            NetworkImage(widget.userData['imageUrl']),
+                      )
+                    else
+                      const CircleAvatar(
+                        radius: 60,
+                        child:
+                            Icon(Icons.person, size: 50, color: Colors.white),
+                      ),
 
-            // Display user information
-            Text("Name: ${widget.userData['name'] ?? 'N/A'}", style: const TextStyle(fontSize: 20)),
-            const SizedBox(height: 8),
-            Text("Email: ${widget.userData['email'] ?? 'N/A'}", style: const TextStyle(fontSize: 16)),
-            const SizedBox(height: 8),
-            Text("Course: ${widget.userData['course'] ?? 'N/A'}", style: const TextStyle(fontSize: 16)),
-            const SizedBox(height: 8),
-            Text("Year: ${widget.userData['year'] ?? 'N/A'}", style: const TextStyle(fontSize: 16)),
-            const SizedBox(height: 8),
-            Text("Country: ${widget.userData['country'] ?? 'N/A'}", style: const TextStyle(fontSize: 16)),
-            const SizedBox(height: 8),
-            Text("Hall: ${widget.userData['hall'] ?? 'N/A'}", style: const TextStyle(fontSize: 16)),
-            const SizedBox(height: 8),
-            Text("Student Type: ${widget.userData['studentType'] ?? 'N/A'}", style: const TextStyle(fontSize: 16)),
-            const SizedBox(height: 8),
-            Text("Interests: ${(widget.userData['interests'] as List<dynamic>)}", style: const TextStyle(fontSize: 16)),
-            const SizedBox(height: 8),
-            Text("Languages: ${(widget.userData['languages'] as List<dynamic>)}", style: const TextStyle(fontSize: 16)),
+                    const SizedBox(height: 10),
+                    // Name and Course/Hall
+                    Text(
+                      '${widget.userData['name']},${widget.userData['year'].replaceAll('Year ', 'Y')}',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 24,
+                      ),
+                    ),
 
-            // Friend request button
-            ElevatedButton(
-              onPressed: isFriendRequestSent ? cancelFriendRequest : sendFriendRequest,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: isFriendRequestSent ? Colors.red : Colors.green,
+                    Text(
+                      '${widget.userData['course']}/${widget.userData['hall']}',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    Text(
+                      '${widget.userData['studentType']} Student',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+
+                    // Bio
+                    if (widget.userData['bio'] != '' &&
+                        widget.userData['bio'] != null)
+                      Container(
+                        padding: const EdgeInsets.all(8.0),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.grey),
+                          color: Theme.of(context).colorScheme.inversePrimary,
+                        ),
+                        child: Text(
+                          '${widget.userData['bio']}',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+
+                    // languages
+                    const Text(
+                      'Languages',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    // Language buttons
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: [
+                        for (var language in widget.userData['languages'])
+                          MyChip(label: language),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    // Interests
+                    const Text(
+                      'Interests',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    // Interest buttons
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: [
+                        for (var interest in widget.userData['interests'])
+                          MyChip(label: interest),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              child: Text(
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.inversePrimary
-                ), 
-                isFriendRequestSent ? 'Cancel Friend Request' : 'Send Friend Request'),
             ),
+            const SizedBox(height: 10),
+            MyButton2(
+                onTap: isFriendRequestSent
+                    ? cancelFriendRequest
+                    : sendFriendRequest,
+                color: isFriendRequestSent ? Colors.red : Colors.green,
+                text: isFriendRequestSent
+                    ? 'Cancel Friend Request'
+                    : 'Send Friend Request'),
           ],
         ),
       ),

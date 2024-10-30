@@ -62,130 +62,136 @@ class ProfilePage extends StatelessWidget {
                         Stack(
                           clipBehavior: Clip.none,
                           children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15),
-                                color: Theme.of(context).colorScheme.secondary,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 5),
-                                  ),
-                                ],
-                              ),
-                              padding: const EdgeInsets.all(20.0),
-                              child: Column(
-                                children: [
-                                  // Profile Image and Edit Button
-                                  if (profileData['imageUrl'] != null)
-                                    CircleAvatar(
-                                      radius: 60,
-                                      backgroundImage:
-                                          NetworkImage(profileData['imageUrl']),
-                                    )
-                                  else
-                                    const CircleAvatar(
-                                      radius: 60,
-                                      child: Icon(Icons.person,
-                                          size: 50, color: Colors.white),
+                            SizedBox(
+                              width: 400,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15),
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.1),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 5),
                                     ),
-
-                                  const SizedBox(height: 10),
-                                  // Name and Course/Hall
-                                  Text(
-                                    '${profileData['name']},${profileData['year'].replaceAll('Year ', 'Y')}',
-                                    style: TextStyle(
-                                      fontFamily: 'Poppins',
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 24,
-                                    ),
-                                  ),
-
-                                  Text(
-                                    '${profileData['course']}/${profileData['hall']}',
-                                    style: TextStyle(
-                                      fontFamily: 'Poppins',
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-
-                                  Text(
-                                    '${profileData['studentType']} Student',
-                                    style: TextStyle(
-                                      fontFamily: 'Poppins',
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 10),
-
-                                  // Bio
-                                  if (profileData['bio'] != '')
-                                    Container(
-                                      padding: const EdgeInsets.all(8.0),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(color: Colors.grey),
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .inversePrimary,
+                                  ],
+                                ),
+                                padding: const EdgeInsets.all(20.0),
+                                child: Column(
+                                  children: [
+                                    // Profile Image and Edit Button
+                                    if (profileData['imageUrl'] != null)
+                                      CircleAvatar(
+                                        radius: 60,
+                                        backgroundImage: NetworkImage(
+                                            profileData['imageUrl']),
+                                      )
+                                    else
+                                      const CircleAvatar(
+                                        radius: 60,
+                                        child: Icon(Icons.person,
+                                            size: 50, color: Colors.white),
                                       ),
-                                      child: Text(
-                                        '${profileData['bio']}',
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontFamily: 'Poppins',
-                                          fontSize: 12,
-                                        ),
+
+                                    const SizedBox(height: 10),
+                                    // Name and Course/Hall
+                                    Text(
+                                      '${profileData['name']},${profileData['year'].replaceAll('Year ', 'Y')}',
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 24,
                                       ),
                                     ),
-                                  if (profileData['bio'] != '')
+
+                                    Text(
+                                      '${profileData['course']}/${profileData['hall']}',
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+
+                                    Text(
+                                      '${profileData['studentType']} Student',
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                     const SizedBox(height: 10),
 
-                                  // languages
-                                  const Text(
-                                    'Languages',
-                                    style: TextStyle(
-                                      fontFamily: 'Poppins',
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
+                                    // Bio
+                                    if (profileData['bio'] != '')
+                                      Container(
+                                        padding: const EdgeInsets.all(8.0),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          border:
+                                              Border.all(color: Colors.grey),
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .inversePrimary,
+                                        ),
+                                        child: Text(
+                                          '${profileData['bio']}',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontFamily: 'Poppins',
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ),
+                                    if (profileData['bio'] != '')
+                                      const SizedBox(height: 10),
+
+                                    // languages
+                                    const Text(
+                                      'Languages',
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 10),
-                                  // Language buttons
-                                  Wrap(
-                                    spacing: 10,
-                                    runSpacing: 10,
-                                    children: [
-                                      for (var language
-                                          in profileData['languages'])
-                                        MyChip(label: language),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 10),
-                                  // Interests
-                                  const Text(
-                                    'Interests',
-                                    style: TextStyle(
-                                      fontFamily: 'Poppins',
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
+                                    const SizedBox(height: 10),
+                                    // Language buttons
+                                    Wrap(
+                                      spacing: 10,
+                                      runSpacing: 10,
+                                      children: [
+                                        for (var language
+                                            in profileData['languages'])
+                                          MyChip(label: language),
+                                      ],
                                     ),
-                                  ),
-                                  const SizedBox(height: 10),
-                                  // Interest buttons
-                                  Wrap(
-                                    spacing: 10,
-                                    runSpacing: 10,
-                                    children: [
-                                      for (var interest
-                                          in profileData['interests'])
-                                        MyChip(label: interest),
-                                    ],
-                                  ),
-                                ],
+                                    const SizedBox(height: 10),
+                                    // Interests
+                                    const Text(
+                                      'Interests',
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    // Interest buttons
+                                    Wrap(
+                                      spacing: 10,
+                                      runSpacing: 10,
+                                      children: [
+                                        for (var interest
+                                            in profileData['interests'])
+                                          MyChip(label: interest),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
 

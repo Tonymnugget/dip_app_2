@@ -1,3 +1,4 @@
+import 'package:dip_app_2/components/my_button_2.dart';
 import 'package:dip_app_2/components/my_navigationbar.dart';
 import 'package:dip_app_2/screens/matching/filter_results.dart';
 import 'package:dip_app_2/services/database/firestore_service.dart';
@@ -106,7 +107,7 @@ class _FilterPageState extends State<FilterPage> {
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: Text(
-          'Select Filter',
+          'Select Filters',
           style: TextStyle(
             fontFamily: 'Poppins',
             fontWeight: FontWeight.bold,
@@ -121,179 +122,192 @@ class _FilterPageState extends State<FilterPage> {
       ),
       bottomNavigationBar: MyNavigationBar(),
       body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 10),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 30),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 10),
 
-            // Using MyDropDown for Gender
-            MyDropDown(
-              hintText: 'Select Gender',
-              options: ['N/A', 'Male', 'Female'],
-              onChanged: (value) {
-                setState(() {
-                  selectedGender = value!;
-                });
-              },
-            ),
-
-            // Using MyDropDown for Course
-            MyDropDown(
-              hintText: 'Select Course',
-              options: [
-                'N/A',
-                'Electrical Engineering',
-                'Data Science',
-                'Economics',
-                'Information Systems',
-                'Finance',
-                'Architecture',
-                'Computer Science',
-                'Humanities',
-                'Biological Sciences',
-                'Social Work',
-                'Biomedical Engineering',
-                'Business',
-                'Mechanical Engineering',
-                'Psychology',
-                'Chemical Engineering',
-                'Aerospace Engineering',
-                'Environmental Science',
-                'Civil Engineering',
-                'Mathematics'
-              ],
-              onChanged: (value) {
-                setState(() {
-                  selectedCourse = value!;
-                });
-              },
-            ),
-
-            // Using MyDropDown for Year
-            MyDropDown(
-              hintText: 'Select Year',
-              options: ['N/A', 'Year 1', 'Year 2', 'Year 3', 'Year 4'],
-              onChanged: (value) {
-                setState(() {
-                  selectedYear = value!;
-                });
-              },
-            ),
-
-            // Using MyDropDown for Hall
-            MyDropDown(
-              hintText: 'Select Hall',
-              options: [
-                'N/A',
-                'Hall 1',
-                'Hall 2',
-                'Hall 3',
-                'Hall 4',
-                'Hall 5',
-                'Hall 6',
-                'Hall 7',
-                'Hall 8',
-                'Hall 9',
-                'Hall 10',
-                'Hall 11',
-                'Hall 12',
-                'Hall 13',
-                'Hall 14',
-                'Hall 15',
-                'Hall 16',
-                'Maple Residency',
-                'Tanjong',
-                'Pioneer',
-                'Tamarind',
-                'Cresent',
-                'Saraca'
-              ],
-              onChanged: (value) {
-                setState(() {
-                  selectedHall = value!;
-                });
-              },
-            ),
-
-            // Using MyDropDown for Student Type
-            MyDropDown(
-              hintText: 'Select Student Type',
-              options: ['N/A', 'Local', 'International', 'Exchange'],
-              onChanged: (value) {
-                setState(() {
-                  selectedStudentType = value!;
-                });
-              },
-            ),
-
-            // Using MyDropDown for Country
-            MyDropDown(
-              hintText: 'Select Country',
-              options: [
-                'N/A',
-                'Singapore',
-                'Malaysia',
-                'India',
-                'Vietnam',
-                'Mexico',
-                'France',
-                'Australia',
-                'Japan',
-                'United States',
-                'Sweden',
-                'Canada',
-                'United Kingdom',
-                'China',
-                'Indonesia',
-                'South Korea',
-                'Spain',
-                'Germany',
-                'Thailand',
-                'Italy',
-                'Brazil',
-                'New Zealand'
-              ],
-              onChanged: (value) {
-                setState(() {
-                  selectedCountry = value!;
-                });
-              },
-            ),
-
-            // Multi-select for Languages using MyMultiSelect
-            MyMultiSelect(
-              hintText: 'Select Languages',
-              options: languages,
-              selectedValues: selectedLanguages,
-              onSelectionChanged: (selectedValues) {
-                setState(() {
-                  selectedLanguages = selectedValues;
-                });
-              },
-            ),
-
-            // Multi-select for Interests using MyMultiSelect
-            MyMultiSelect(
-              hintText: 'Select Interests',
-              options: interests,
-              selectedValues: selectedInterests,
-              onSelectionChanged: (selectedValues) {
-                setState(() {
-                  selectedInterests = selectedValues;
-                });
-              },
-            ),
-
-            const SizedBox(height: 20),
-
-            // Filter button
-            Center(
-              child: ElevatedButton(
-                onPressed: filterUsers,
-                child: const Text('Filter Users'),
+              // Using MyDropDown for Gender
+              MyDropDown(
+                titlename: 'Gender:',
+                hintText: 'Select Gender',
+                options: ['N/A', 'Male', 'Female'],
+                onChanged: (value) {
+                  setState(() {
+                    selectedGender = value!;
+                  });
+                },
               ),
-            ),
-          ],
+
+              // Using MyDropDown for Course
+              MyDropDown(
+                titlename: 'Field of Study:',
+                hintText: 'Select Course',
+                options: [
+                  'N/A',
+                  'Electrical Engineering',
+                  'Data Science',
+                  'Economics',
+                  'Information Systems',
+                  'Finance',
+                  'Architecture',
+                  'Computer Science',
+                  'Humanities',
+                  'Biological Sciences',
+                  'Social Work',
+                  'Biomedical Engineering',
+                  'Business',
+                  'Mechanical Engineering',
+                  'Psychology',
+                  'Chemical Engineering',
+                  'Aerospace Engineering',
+                  'Environmental Science',
+                  'Civil Engineering',
+                  'Mathematics'
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    selectedCourse = value!;
+                  });
+                },
+              ),
+
+              // Using MyDropDown for Year
+              MyDropDown(
+                titlename: 'Academic Year:',
+                hintText: 'Select Year',
+                options: ['N/A', 'Year 1', 'Year 2', 'Year 3', 'Year 4'],
+                onChanged: (value) {
+                  setState(() {
+                    selectedYear = value!;
+                  });
+                },
+              ),
+
+              // Using MyDropDown for Hall
+              MyDropDown(
+                titlename: 'Accomodation:',
+                hintText: 'Select Hall',
+                options: [
+                  'N/A',
+                  'Hall 1',
+                  'Hall 2',
+                  'Hall 3',
+                  'Hall 4',
+                  'Hall 5',
+                  'Hall 6',
+                  'Hall 7',
+                  'Hall 8',
+                  'Hall 9',
+                  'Hall 10',
+                  'Hall 11',
+                  'Hall 12',
+                  'Hall 13',
+                  'Hall 14',
+                  'Hall 15',
+                  'Hall 16',
+                  'Maple Residency',
+                  'Tanjong',
+                  'Pioneer',
+                  'Tamarind',
+                  'Cresent',
+                  'Saraca',
+                  'Off Campus'
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    selectedHall = value!;
+                  });
+                },
+              ),
+
+              // Using MyDropDown for Student Type
+              MyDropDown(
+                titlename: 'Enrolment Type:',
+                hintText: 'Select Student Type',
+                options: ['N/A', 'Local', 'International', 'Exchange'],
+                onChanged: (value) {
+                  setState(() {
+                    selectedStudentType = value!;
+                  });
+                },
+              ),
+
+              // Using MyDropDown for Country
+              MyDropDown(
+                titlename: 'Home Country:',
+                hintText: 'Select Country',
+                options: [
+                  'N/A',
+                  'Singapore',
+                  'Malaysia',
+                  'India',
+                  'Vietnam',
+                  'Mexico',
+                  'France',
+                  'Australia',
+                  'Japan',
+                  'United States',
+                  'Sweden',
+                  'Canada',
+                  'United Kingdom',
+                  'China',
+                  'Indonesia',
+                  'South Korea',
+                  'Spain',
+                  'Germany',
+                  'Thailand',
+                  'Italy',
+                  'Brazil',
+                  'New Zealand'
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    selectedCountry = value!;
+                  });
+                },
+              ),
+
+              // Multi-select for Languages using MyMultiSelect
+              MyMultiSelect(
+                titlename: 'Language Spoken:',
+                hintText: 'Select Languages',
+                options: languages,
+                selectedValues: selectedLanguages,
+                onSelectionChanged: (selectedValues) {
+                  setState(() {
+                    selectedLanguages = selectedValues;
+                  });
+                },
+              ),
+
+              // Multi-select for Interests using MyMultiSelect
+              MyMultiSelect(
+                titlename: 'Interests:',
+                hintText: 'Select Interests',
+                options: interests,
+                selectedValues: selectedInterests,
+                onSelectionChanged: (selectedValues) {
+                  setState(() {
+                    selectedInterests = selectedValues;
+                  });
+                },
+              ),
+
+              const SizedBox(height: 10),
+
+              // Filter button
+              Center(
+                child: MyButton2(
+                  color: Color.fromARGB(255, 137, 201, 220),
+                  onTap: filterUsers,
+                  text: "Filter Users",
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

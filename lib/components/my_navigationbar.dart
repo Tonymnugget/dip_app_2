@@ -1,6 +1,6 @@
+import 'package:dip_app_2/screens/food_finder/food_finder.dart';
 import 'package:dip_app_2/screens/home/home.dart';
 import 'package:dip_app_2/screens/matching/friend_finder.dart';
-import 'package:dip_app_2/screens/notifications/notifcations.dart';
 import 'package:dip_app_2/screens/profile/profile.dart';
 import 'package:dip_app_2/screens/settings/settings.dart';
 import 'package:flutter/material.dart';
@@ -77,7 +77,7 @@ class MyNavigationBar extends StatelessWidget {
             ),
             IconButton(
               icon: const Icon(
-                Icons.notifications,
+                Icons.fastfood,
                 color: Colors.white,
                 size: 30,
               ),
@@ -86,7 +86,7 @@ class MyNavigationBar extends StatelessWidget {
                   context,
                   PageRouteBuilder(
                     pageBuilder: (context, animation, secondaryAnimation) =>
-                        NotificationPage(),
+                        CategoryScreen(),
                     transitionDuration: Duration.zero, // No animation
                     reverseTransitionDuration:
                         Duration.zero, // No reverse animation

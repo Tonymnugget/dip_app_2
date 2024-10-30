@@ -1,3 +1,4 @@
+import 'package:dip_app_2/components/my_navigationbar.dart';
 import 'package:dip_app_2/components/my_tile.dart';
 import 'package:dip_app_2/screens/matching/user_details.dart';
 import 'package:dip_app_2/services/auth/auth_service.dart';
@@ -17,15 +18,20 @@ class FilterResultsPage extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: Text(
-          "Filtered Users",
+          'Select Filters',
           style: TextStyle(
-            color: Theme.of(context).colorScheme.inversePrimary,
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onPrimary,
           ),
         ),
-        backgroundColor: Colors.transparent,
-        foregroundColor: Colors.grey,
-        elevation: 0,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        centerTitle: true,
+        iconTheme: IconThemeData(
+          color: Theme.of(context).colorScheme.tertiary,
+        ),
       ),
+      bottomNavigationBar: MyNavigationBar(),
       body: _buildUserList(context),
     );
   }

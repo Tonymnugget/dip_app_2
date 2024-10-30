@@ -4,7 +4,7 @@ import 'package:dip_app_2/screens/matching/filter.dart';
 import 'package:dip_app_2/screens/matching/friend_finder.dart';
 import 'package:dip_app_2/screens/notifications/friend_request.dart';
 import 'package:dip_app_2/screens/notifications/notifcations.dart';
-import 'package:dip_app_2/screens/profile/profile__edit.dart';
+import 'package:dip_app_2/screens/profile/profile_edit.dart';
 import 'package:dip_app_2/screens/settings/settings.dart';
 import 'package:dip_app_2/services/auth/auth_wrapper.dart';
 import 'package:dip_app_2/services/auth/login_or_register.dart';

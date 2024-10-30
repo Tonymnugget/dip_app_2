@@ -1,3 +1,4 @@
+import 'package:dip_app_2/components/my_navigationbar.dart';
 import 'package:dip_app_2/theme/theme_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -11,17 +12,21 @@ class SettingsPage extends StatelessWidget {
     return Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: AppBar(
-          centerTitle: true,
           title: Text(
-            "Settings",
+            'Select Filters',
             style: TextStyle(
-              color: Theme.of(context).colorScheme.inversePrimary,
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.onPrimary,
             ),
           ),
-          backgroundColor: Colors.transparent,
-          foregroundColor: Colors.grey,
-          elevation: 0,
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          centerTitle: true,
+          iconTheme: IconThemeData(
+            color: Theme.of(context).colorScheme.tertiary,
+          ),
         ),
+        bottomNavigationBar: MyNavigationBar(),
 
         // body
         body: Column(

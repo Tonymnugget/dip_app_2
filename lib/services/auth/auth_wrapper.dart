@@ -1,5 +1,5 @@
 import 'package:dip_app_2/screens/home/home.dart';
-import 'package:dip_app_2/screens/profile/profile__edit.dart';
+import 'package:dip_app_2/screens/profile/profile_edit.dart';
 import 'package:dip_app_2/services/auth/login_or_register.dart';
 import 'package:dip_app_2/screens/verification/verification.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,9 +11,11 @@ class AuthWrapper extends StatelessWidget {
 
   Future<bool> _checkProfileComplete(String uid) async {
     // Query Firestore to check if profile is complete
-    final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+    final doc =
+        await FirebaseFirestore.instance.collection('users').doc(uid).get();
     if (doc.exists && doc.data() != null) {
-      return doc.data()!['profileComplete'] == true; // Check profileComplete field
+      return doc.data()!['profileComplete'] ==
+          true; // Check profileComplete field
     }
     return false;
   }
@@ -37,7 +39,7 @@ class AuthWrapper extends StatelessWidget {
 
           // User is logged in
           User? user = snapshot.data;
-          
+
           // TODO: Remove the comment to activate verify email func
           /*
           // Check if the user's email is verified
@@ -46,12 +48,13 @@ class AuthWrapper extends StatelessWidget {
             return const VerifyEmailPage();
           }
           */
-        
+
           if (user != null) {
             return FutureBuilder<bool>(
               future: _checkProfileComplete(user.uid),
               builder: (context, profileSnapshot) {
-                if (profileSnapshot.connectionState == ConnectionState.waiting) {
+                if (profileSnapshot.connectionState ==
+                    ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (profileSnapshot.hasData) {
                   bool isProfileComplete = profileSnapshot.data!;
@@ -77,4 +80,3 @@ class AuthWrapper extends StatelessWidget {
     );
   }
 }
-

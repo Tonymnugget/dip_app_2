@@ -57,7 +57,18 @@ class FriendsListTile extends StatelessWidget {
             final friends = friendSnapshot.data!.docs;
 
             if (friends.isEmpty) {
-              return const Center(child: Text('No friends found'));
+              return const Center(
+                child: // Encouraging message
+                    Text(
+                  "It looks a bit quiet here... Tap 'Select Filters' to start exploring and make new friends!",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontStyle: FontStyle.italic,
+                    color: Colors.grey,
+                  ),
+                ),
+              );
             }
 
             // Get all friend IDs

@@ -1,3 +1,4 @@
+import 'package:dip_app_2/components/my_navigationbar.dart';
 import 'package:dip_app_2/components/my_tile.dart';
 import 'package:dip_app_2/services/database/firestore_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -18,15 +19,20 @@ class FriendRequestPage extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: Text(
-          "Friend Requests",
+          'Notifications',
           style: TextStyle(
-            color: Theme.of(context).colorScheme.inversePrimary,
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onPrimary,
           ),
         ),
-        backgroundColor: Colors.transparent,
-        foregroundColor: Colors.grey,
-        elevation: 0,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        centerTitle: true,
+        iconTheme: IconThemeData(
+          color: Theme.of(context).colorScheme.tertiary,
+        ),
       ),
+      bottomNavigationBar: MyNavigationBar(),
       body: _buildUserList(), // Fetch and display friend requests
     );
   }
@@ -90,10 +96,13 @@ class FriendRequestPage extends StatelessWidget {
           text: senderData['name'] ?? 'Unknown', // Display sender's name
           leading: CircleAvatar(
             radius: 20,
+            backgroundColor: Colors.grey,
             foregroundImage: senderData['imageUrl'] != null
                 ? NetworkImage(senderData['imageUrl']!)
                 : null,
-            backgroundColor: Colors.grey,
+            child: senderData['imageUrl'] == null
+                ? const Icon(Icons.person, size: 20)
+                : null,
           ),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,

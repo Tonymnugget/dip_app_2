@@ -4,12 +4,130 @@ import 'package:dip_app_2/services/auth/auth_service.dart';
 import 'package:dip_app_2/services/database/firestore_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class FriendFinderPage extends StatelessWidget {
-  FriendFinderPage({super.key});
+class FriendFinderPage extends StatefulWidget {
+  const FriendFinderPage({super.key});
 
-  // get FirestoreService
+  @override
+  _FriendFinderPageState createState() => _FriendFinderPageState();
+}
+
+class _FriendFinderPageState extends State<FriendFinderPage> {
   final FirestoreService firestoreService = FirestoreService();
+  bool showInstructions = true; // Track whether to show instructions
+  // Cache the future returned by firestoreService.getProfileData(user.uid) to avoid
+  // Rebuilding Futures, only rebuild when needed
+  Future<Map<String, dynamic>?>? _profileDataFuture;
+  User? user;
+  SharedPreferences? _prefs;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializePreferences();
+    user = AuthService().getCurrentUser();
+    if (user != null) {
+      _profileDataFuture = firestoreService.getProfileData(user!.uid);
+    }
+  }
+
+  // Only initialize once with the following three functions
+  Future<void> _initializePreferences() async {
+    _prefs = await SharedPreferences.getInstance();
+    _loadPreference();
+  }
+
+  // Load the 'showInstructions' preference
+  Future<void> _loadPreference() async {
+    setState(() {
+      showInstructions = _prefs?.getBool('showInstructions') ?? true;
+    });
+  }
+
+  // Save the user preference to hide instructions in the future
+  Future<void> _setPreference(bool value) async {
+    await _prefs?.setBool('showInstructions', value);
+  }
+
+  Future<void> _showInstructionsDialog() async {
+    bool dontShowAgain = false;
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text(
+                'Instructions',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              content: SingleChildScrollView(
+                // Wrap with SingleChildScrollView to avoid overflow
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      "Welcome to Friend Finder! You can find new friends based on their course, hall, interests, and more. Friend Finder will connect you with users based on the filters you input, and you can start chatting with those you are interested in getting to know. Start making new friends now!",
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Checkbox(
+                          value: dontShowAgain,
+                          onChanged: (value) {
+                            setState(() {
+                              dontShowAgain = value ?? false;
+                            });
+                          },
+                        ),
+                        const Text("Don't show again"),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context)
+                        .pop(); // Close the dialog without action
+                  },
+                  child: const Text("Cancel"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    _setPreference(
+                        !dontShowAgain); // Save preference based on checkbox
+                    Navigator.of(context).pop(); // Close dialog
+                    _navigateToFilterPage();
+                  },
+                  child: const Text("Start"),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // Navigate to the FilterPage
+  void _navigateToFilterPage() {
+    Navigator.pushNamed(
+        context, '/filter'); // Replace with your FilterPage route
+  }
+
+  // Handle the Select Filters button tap
+  void _onSelectFiltersTap() {
+    if (showInstructions) {
+      _showInstructionsDialog();
+    } else {
+      _navigateToFilterPage();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +154,7 @@ class FriendFinderPage extends StatelessWidget {
       body: user == null
           ? const Center(child: Text("No user logged in"))
           : FutureBuilder<Map<String, dynamic>?>(
-              future: firestoreService.getProfileData(user.uid),
+              future: _profileDataFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -47,7 +165,6 @@ class FriendFinderPage extends StatelessWidget {
                   return const Center(child: Text("Profile not found"));
                 }
 
-                // Retrieve and display profile data
                 final profileData = snapshot.data!;
 
                 return SingleChildScrollView(
@@ -73,7 +190,6 @@ class FriendFinderPage extends StatelessWidget {
                           padding: const EdgeInsets.all(16.0),
                           child: Column(
                             children: [
-                              // Profile Image and Edit Button
                               if (profileData['imageUrl'] != null)
                                 CircleAvatar(
                                   radius: 60,
@@ -86,9 +202,7 @@ class FriendFinderPage extends StatelessWidget {
                                   child: Icon(Icons.person,
                                       size: 50, color: Colors.white),
                                 ),
-
                               const SizedBox(height: 10),
-                              // Name and Course/Hall
                               Text(
                                 '${profileData['name']}',
                                 style: TextStyle(
@@ -97,7 +211,6 @@ class FriendFinderPage extends StatelessWidget {
                                   fontSize: 24,
                                 ),
                               ),
-
                               Text(
                                 '${profileData['course']}/${profileData['hall']}',
                                 style: TextStyle(
@@ -109,11 +222,8 @@ class FriendFinderPage extends StatelessWidget {
                             ],
                           ),
                         ),
-
                         const SizedBox(height: 10),
-
                         FriendsListTile(currentUserId: user.uid),
-
                         const SizedBox(height: 20),
 
                         // Select Filters Button
@@ -130,10 +240,9 @@ class FriendFinderPage extends StatelessWidget {
                             ],
                           ),
                           child: ListTile(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 7),
-                            onTap: () {
-                              Navigator.pushNamed(context, '/filter');
-                            },
+                            contentPadding:
+                                const EdgeInsets.symmetric(horizontal: 7),
+                            onTap: _onSelectFiltersTap,
                             title: const Text(
                               'Select Filters',
                               style: TextStyle(
@@ -161,7 +270,8 @@ class FriendFinderPage extends StatelessWidget {
                             ],
                           ),
                           child: ListTile(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 7),
+                            contentPadding:
+                                const EdgeInsets.symmetric(horizontal: 7),
                             title: const Text(
                               'Notifications',
                               style: TextStyle(

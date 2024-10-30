@@ -193,18 +193,22 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                   ),
 
                   MyDropDown(
-                    hintText: 'Select Year',
-                    options: ['Year 1', 'Year 2', 'Year 3', 'Year 4'],
-                    initialValue: selectedYear,
+                    titlename: 'Gender:',
+                    hintText: 'Select Gender',
+                    initialValue: selectedGender,
+                    options: ['Male', 'Female'],
                     onChanged: (value) {
                       setState(() {
-                        selectedYear = value;
+                        selectedGender = value!;
                       });
                     },
                   ),
 
+                  // Using MyDropDown for Course
                   MyDropDown(
+                    titlename: 'Field of Study:',
                     hintText: 'Select Course',
+                    initialValue: selectedCourse,
                     options: [
                       'Electrical Engineering',
                       'Data Science',
@@ -226,16 +230,81 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                       'Civil Engineering',
                       'Mathematics'
                     ],
-                    initialValue: selectedCourse,
                     onChanged: (value) {
                       setState(() {
-                        selectedCourse = value;
+                        selectedCourse = value!;
                       });
                     },
                   ),
 
+                  // Using MyDropDown for Year
                   MyDropDown(
+                    titlename: 'Academic Year:',
+                    hintText: 'Select Year',
+                    initialValue: selectedYear,
+                    options: ['Year 1', 'Year 2', 'Year 3', 'Year 4'],
+                    onChanged: (value) {
+                      setState(() {
+                        selectedYear = value!;
+                      });
+                    },
+                  ),
+
+                  // Using MyDropDown for Hall
+                  MyDropDown(
+                    titlename: 'Accomodation:',
+                    hintText: 'Select Hall',
+                    initialValue: selectedHall,
+                    options: [
+                      'Hall 1',
+                      'Hall 2',
+                      'Hall 3',
+                      'Hall 4',
+                      'Hall 5',
+                      'Hall 6',
+                      'Hall 7',
+                      'Hall 8',
+                      'Hall 9',
+                      'Hall 10',
+                      'Hall 11',
+                      'Hall 12',
+                      'Hall 13',
+                      'Hall 14',
+                      'Hall 15',
+                      'Hall 16',
+                      'Maple Residency',
+                      'Tanjong',
+                      'Pioneer',
+                      'Tamarind',
+                      'Cresent',
+                      'Saraca',
+                      'Off Campus'
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        selectedHall = value!;
+                      });
+                    },
+                  ),
+
+                  // Using MyDropDown for Student Type
+                  MyDropDown(
+                    titlename: 'Enrolment Type:',
+                    hintText: 'Select Student Type',
+                    initialValue: selectedStudentType,
+                    options: ['Local', 'International', 'Exchange'],
+                    onChanged: (value) {
+                      setState(() {
+                        selectedStudentType = value!;
+                      });
+                    },
+                  ),
+
+                  // Using MyDropDown for Country
+                  MyDropDown(
+                    titlename: 'Home Country:',
                     hintText: 'Select Country',
+                    initialValue: selectedCountry,
                     options: [
                       'Singapore',
                       'Malaysia',
@@ -259,72 +328,16 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                       'Brazil',
                       'New Zealand'
                     ],
-                    initialValue: selectedCountry,
                     onChanged: (value) {
                       setState(() {
-                        selectedCountry = value;
-                      });
-                    },
-                  ),
-
-                  MyDropDown(
-                    hintText: 'Select Gender',
-                    options: ['Male', 'Female'],
-                    initialValue: selectedGender,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedGender = value;
-                      });
-                    },
-                  ),
-
-                  MyDropDown(
-                    hintText: 'Select Hall',
-                    options: [
-                      'Hall 1',
-                      'Hall 2',
-                      'Hall 3',
-                      'Hall 4',
-                      'Hall 5',
-                      'Hall 6',
-                      'Hall 7',
-                      'Hall 8',
-                      'Hall 9',
-                      'Hall 10',
-                      'Hall 11',
-                      'Hall 12',
-                      'Hall 13',
-                      'Hall 14',
-                      'Hall 15',
-                      'Hall 16',
-                      'Maple Residency',
-                      'Tanjong',
-                      'Pioneer',
-                      'Tamarind',
-                      'Cresent',
-                      'Saraca'
-                    ],
-                    initialValue: selectedHall,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedHall = value;
-                      });
-                    },
-                  ),
-
-                  MyDropDown(
-                    hintText: 'Select Student Type',
-                    options: ['International', 'Local', 'Exchange'],
-                    initialValue: selectedStudentType,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedStudentType = value;
+                        selectedCountry = value!;
                       });
                     },
                   ),
 
                   // Multi-select for Languages using MyMultiSelect
                   MyMultiSelect(
+                    titlename: 'Language Spoken:',
                     hintText: 'Select Languages',
                     options: languages,
                     selectedValues: selectedLanguages,
@@ -337,6 +350,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
 
                   // Multi-select for Interests using MyMultiSelect
                   MyMultiSelect(
+                    titlename: 'Interests:',
                     hintText: 'Select Interests',
                     options: interests,
                     selectedValues: selectedInterests,
