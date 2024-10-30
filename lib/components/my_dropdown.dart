@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 class MyDropDown extends StatefulWidget {
   final String hintText;
   final List<String> options;
-  final Function(String?)? onChanged;  // The callback function to pass selected value
+  final Function(String?)?
+      onChanged; // The callback function to pass selected value
   final String? initialValue;
 
   const MyDropDown({
@@ -19,7 +20,7 @@ class MyDropDown extends StatefulWidget {
 }
 
 class _MyDropDownState extends State<MyDropDown> {
-  String? selectedValue;  // Internal state for managing selected value
+  String? selectedValue; // Internal state for managing selected value
 
   @override
   void initState() {
@@ -46,10 +47,11 @@ class _MyDropDownState extends State<MyDropDown> {
         }).toList(),
         onChanged: (String? newValue) {
           setState(() {
-            selectedValue = newValue;  // Update the selected value internally
+            selectedValue = newValue; // Update the selected value internally
           });
           if (widget.onChanged != null) {
-            widget.onChanged!(newValue);  // Call parent callback with the new value
+            widget.onChanged!(
+                newValue); // Call parent callback with the new value
           }
         },
       ),

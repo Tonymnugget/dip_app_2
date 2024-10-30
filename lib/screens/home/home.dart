@@ -1,4 +1,5 @@
 import 'package:dip_app_2/components/my_drawer.dart';
+import 'package:dip_app_2/components/my_navigationbar.dart';
 import 'package:dip_app_2/screens/notifications/notifcations.dart';
 import 'package:flutter/material.dart';
 import 'package:dip_app_2/components/my_icon_button.dart'; // Import the button component
@@ -6,7 +7,7 @@ import 'package:dip_app_2/components/my_icon_button.dart'; // Import the button 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
-  // TODO add block user, report user, delete chat, unfriend, if friend do not show in filter same for block and ***report
+  // TODO add block user, report user, delete chat, unfriend, (if friend do not show in filter) same for block
 
   @override
   Widget build(BuildContext context) {
@@ -14,14 +15,20 @@ class HomePage extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: Text(
-          "Home",
+          'Home',
           style: TextStyle(
-            color: Theme.of(context).colorScheme.inversePrimary,
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onPrimary,
           ),
         ),
-        backgroundColor: Colors.transparent,
-        foregroundColor: Colors.grey,
-        elevation: 0,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        centerTitle: true,
+        iconTheme: IconThemeData(
+          color: Theme.of(context)
+              .colorScheme
+              .tertiary, // Change the back arrow color to white
+        ),
 
         // NotificationPage
         actions: [
@@ -39,6 +46,7 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
+      bottomNavigationBar: MyNavigationBar(),
       drawer: const MyDrawer(),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -51,7 +59,7 @@ class HomePage extends StatelessWidget {
               icon: Icons.people_alt_rounded,
               size: 60,
               onTap: () {
-                Navigator.pushNamed(context, '/filter');
+                Navigator.pushNamed(context, '/friend_finder');
               },
             ),
             MyIconButton(

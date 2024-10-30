@@ -26,6 +26,13 @@ class MyTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.secondary,
           borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            ),
+          ],
         ),
         margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 25),
         padding: const EdgeInsets.all(16),
@@ -43,7 +50,6 @@ class MyTile extends StatelessWidget {
                   Text(
                     text,
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.inversePrimary,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
@@ -52,7 +58,6 @@ class MyTile extends StatelessWidget {
                     Text(
                       subtitle!,
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
                         fontSize: 14,
                       ),
                     ),

@@ -18,7 +18,7 @@ class MyIconButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primary,
+          color: Theme.of(context).colorScheme.secondary,
           borderRadius: BorderRadius.circular(12), // Rounded square
         ),
         padding: const EdgeInsets.all(25),

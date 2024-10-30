@@ -1,0 +1,44 @@
+import 'package:flutter/material.dart';
+
+class MyBioField extends StatelessWidget {
+  final String hintText;
+  final bool obscureText;
+  final TextEditingController controller;
+
+  const MyBioField({
+    super.key,
+    required this.hintText,
+    required this.obscureText,
+    required this.controller,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 5),
+      child: TextField(
+        obscureText: obscureText,
+        controller: controller,
+
+        // limit the max characters
+        maxLength: 140,
+        maxLines: 3,
+
+        decoration: InputDecoration(
+          enabledBorder: OutlineInputBorder(
+            borderSide:
+                BorderSide(color: Theme.of(context).colorScheme.tertiary),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide:
+                BorderSide(color: Theme.of(context).colorScheme.primary),
+          ),
+          fillColor: Theme.of(context).colorScheme.secondary,
+          filled: true,
+          hintText: hintText,
+          hintStyle: TextStyle(color: Theme.of(context).colorScheme.primary),
+        ),
+      ),
+    );
+  }
+}

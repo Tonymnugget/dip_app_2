@@ -1,11 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dip_app_2/services/auth/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class FirestoreService {
-
   // get instance of auth & firestore
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final AuthService authService = AuthService();
 
   // TODO if the blockbelow not needed delete
   /* 
@@ -22,14 +23,15 @@ class FirestoreService {
 
   Future<Map<String, dynamic>?> getProfileData(String uid) async {
     // Query Firestore to retrieve profile information
-    final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+    final doc =
+        await FirebaseFirestore.instance.collection('users').doc(uid).get();
     if (doc.exists) {
       return doc.data();
     }
     return null;
   }
 
-  // Get filtered users based on the provided criteria
+  // Get filtered users based on the provided criteria and exclude users who are already friends
   Future<List<Map<String, dynamic>>> getFilteredUsers({
     String? gender,
     String? course,
@@ -40,15 +42,39 @@ class FirestoreService {
     List<String>? selectedLanguages,
     List<String>? selectedInterests,
   }) async {
+    // Get the current user ID (assuming it's stored in your auth service)
+    final currentUser = authService.getCurrentUser();
+    if (currentUser == null) return [];
+
+    String currentUserId = currentUser.uid;
+
+    // Fetch the current user's 'friends' collection
+    QuerySnapshot friendsSnapshot = await _firestore
+        .collection('users')
+        .doc(currentUserId)
+        .collection('friends')
+        .get();
+
+    // Extract friend IDs from the snapshot
+    List<String> friendsList =
+        friendsSnapshot.docs.map((doc) => doc['friendId'] as String).toList();
+
+    // Query to get all users that match the filtered criteria
     Query query = _firestore.collection('users');
 
     // Add filters based on the provided criteria
-    if (gender != null && gender != "NA") query = query.where('gender', isEqualTo: gender);
-    if (course != null && course != "NA") query = query.where('course', isEqualTo: course);
-    if (year != null && year != "NA") query = query.where('year', isEqualTo: year);
-    if (hall != null && hall != "NA") query = query.where('hall', isEqualTo: hall);
-    if (studentType != null && studentType != "NA") query = query.where('studentType', isEqualTo: studentType);
-    if (country != null && country != "NA") query = query.where('country', isEqualTo: country);
+    if (gender != null && gender != "NA")
+      query = query.where('gender', isEqualTo: gender);
+    if (course != null && course != "NA")
+      query = query.where('course', isEqualTo: course);
+    if (year != null && year != "NA")
+      query = query.where('year', isEqualTo: year);
+    if (hall != null && hall != "NA")
+      query = query.where('hall', isEqualTo: hall);
+    if (studentType != null && studentType != "NA")
+      query = query.where('studentType', isEqualTo: studentType);
+    if (country != null && country != "NA")
+      query = query.where('country', isEqualTo: country);
 
     // Handle multiple selected languages
     if (selectedLanguages != null && selectedLanguages.isNotEmpty) {
@@ -65,7 +91,13 @@ class FirestoreService {
     List<Map<String, dynamic>> filteredUsers = [];
 
     for (var doc in snapshot.docs) {
-      filteredUsers.add(doc.data() as Map<String, dynamic>);
+      Map<String, dynamic> userData = doc.data() as Map<String, dynamic>;
+
+      // Exclude users that are already friends
+      if (!friendsList.contains(userData['uid']) &&
+          userData['uid'] != currentUserId) {
+        filteredUsers.add(userData);
+      }
     }
 
     return filteredUsers;
@@ -146,7 +178,6 @@ class FirestoreService {
 
   // Function to accept a friend request
   Future<void> acceptFriendRequest(String senderId, currentUserId) async {
-
     try {
       // Add sender to current user's 'friends' collection
       await _firestore
@@ -157,6 +188,7 @@ class FirestoreService {
           .set({
         'friendId': senderId,
         'timestamp': FieldValue.serverTimestamp(),
+        'chatFrequency': 0,
       });
 
       // Add current user to sender's 'friends' collection
@@ -168,6 +200,7 @@ class FirestoreService {
           .set({
         'friendId': currentUserId,
         'timestamp': FieldValue.serverTimestamp(),
+        'chatFrequency': 0,
       });
 
       // Remove the friend request from the current user's 'receivedRequests'
@@ -192,10 +225,9 @@ class FirestoreService {
       throw e;
     }
   }
-  
+
   // Function to delete the friend request
   Future<void> deleteFriendRequest(String senderId, currentUserId) async {
-
     try {
       // Remove the friend request from the current user's 'receivedRequests'
       await FirebaseFirestore.instance

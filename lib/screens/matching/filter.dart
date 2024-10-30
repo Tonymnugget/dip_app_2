@@ -1,3 +1,4 @@
+import 'package:dip_app_2/components/my_navigationbar.dart';
 import 'package:dip_app_2/screens/matching/filter_results.dart';
 import 'package:dip_app_2/services/database/firestore_service.dart';
 import 'package:flutter/material.dart';
@@ -29,13 +30,46 @@ class _FilterPageState extends State<FilterPage> {
 
   // Available options for languages and interests
   final List<String> languages = [
-    'N/A', 'English', 'Chinese', 'Tamil', 'Malay', 'Spanish', 'French', 'Japanese', 'Korean', 'German'
+    'N/A',
+    'English',
+    'Chinese',
+    'Tamil',
+    'Malay',
+    'Spanish',
+    'French',
+    'Japanese',
+    'Korean',
+    'German'
   ];
 
   final List<String> interests = [
-    'N/A', 'Coding', 'Traveling', 'Chemistry', 'Photography', 'Piano', 'Swimming', 'Cycling', 'Finance',
-    'Literature', 'Ecology', 'Volunteering', 'Investing', 'Cooking', 'Guitar', 'Reading', 'Running', 'Yoga', 
-    'Soccer', 'Tennis', 'Basketball', 'Painting', 'Chess', 'Hiking', 'Construction', 'Gaming', 'Robotics'
+    'N/A',
+    'Coding',
+    'Traveling',
+    'Chemistry',
+    'Photography',
+    'Piano',
+    'Swimming',
+    'Cycling',
+    'Finance',
+    'Literature',
+    'Ecology',
+    'Volunteering',
+    'Investing',
+    'Cooking',
+    'Guitar',
+    'Reading',
+    'Running',
+    'Yoga',
+    'Soccer',
+    'Tennis',
+    'Basketball',
+    'Painting',
+    'Chess',
+    'Hiking',
+    'Construction',
+    'Gaming',
+    'Robotics'
   ];
 
   // Function to filter users
@@ -47,12 +81,14 @@ class _FilterPageState extends State<FilterPage> {
       hall: selectedHall != 'N/A' ? selectedHall : null,
       studentType: selectedStudentType != 'N/A' ? selectedStudentType : null,
       country: selectedCountry != 'N/A' ? selectedCountry : null,
-      selectedLanguages: selectedLanguages.isNotEmpty && !selectedLanguages.contains('N/A') 
-          ? selectedLanguages 
-          : null, // Ignore if empty or contains only 'N/A'
-      selectedInterests: selectedInterests.isNotEmpty && !selectedInterests.contains('N/A') 
-          ? selectedInterests 
-          : null, // Ignore if empty or contains only 'N/A'
+      selectedLanguages:
+          selectedLanguages.isNotEmpty && !selectedLanguages.contains('N/A')
+              ? selectedLanguages
+              : null, // Ignore if empty or contains only 'N/A'
+      selectedInterests:
+          selectedInterests.isNotEmpty && !selectedInterests.contains('N/A')
+              ? selectedInterests
+              : null, // Ignore if empty or contains only 'N/A'
     );
 
     // Navigate to FilterResultsPage with filtered users
@@ -67,13 +103,29 @@ class _FilterPageState extends State<FilterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Select Filters')),
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: AppBar(
+        title: Text(
+          'Select Filter',
+          style: TextStyle(
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onPrimary,
+          ),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        centerTitle: true,
+        iconTheme: IconThemeData(
+          color: Theme.of(context).colorScheme.tertiary,
+        ),
+      ),
+      bottomNavigationBar: MyNavigationBar(),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 10),
-            
+
             // Using MyDropDown for Gender
             MyDropDown(
               hintText: 'Select Gender',
@@ -89,10 +141,26 @@ class _FilterPageState extends State<FilterPage> {
             MyDropDown(
               hintText: 'Select Course',
               options: [
-                'N/A', 'Electrical Engineering', 'Data Science', 'Economics', 'Information Systems', 'Finance',
-                'Architecture', 'Computer Science', 'Humanities', 'Biological Sciences', 'Social Work', 
-                'Biomedical Engineering', 'Business', 'Mechanical Engineering', 'Psychology', 'Chemical Engineering',
-                'Aerospace Engineering', 'Environmental Science', 'Civil Engineering', 'Mathematics'
+                'N/A',
+                'Electrical Engineering',
+                'Data Science',
+                'Economics',
+                'Information Systems',
+                'Finance',
+                'Architecture',
+                'Computer Science',
+                'Humanities',
+                'Biological Sciences',
+                'Social Work',
+                'Biomedical Engineering',
+                'Business',
+                'Mechanical Engineering',
+                'Psychology',
+                'Chemical Engineering',
+                'Aerospace Engineering',
+                'Environmental Science',
+                'Civil Engineering',
+                'Mathematics'
               ],
               onChanged: (value) {
                 setState(() {
@@ -116,9 +184,29 @@ class _FilterPageState extends State<FilterPage> {
             MyDropDown(
               hintText: 'Select Hall',
               options: [
-                'N/A', 'Hall 1', 'Hall 2', 'Hall 3', 'Hall 4', 'Hall 5', 'Hall 6', 'Hall 7', 'Hall 8', 'Hall 9', 
-                'Hall 10', 'Hall 11', 'Hall 12', 'Hall 13', 'Hall 14', 'Hall 15', 'Hall 16', 'Maple Residency',
-                'Tanjong', 'Pioneer', 'Tamarind', 'Cresent', 'Saraca'
+                'N/A',
+                'Hall 1',
+                'Hall 2',
+                'Hall 3',
+                'Hall 4',
+                'Hall 5',
+                'Hall 6',
+                'Hall 7',
+                'Hall 8',
+                'Hall 9',
+                'Hall 10',
+                'Hall 11',
+                'Hall 12',
+                'Hall 13',
+                'Hall 14',
+                'Hall 15',
+                'Hall 16',
+                'Maple Residency',
+                'Tanjong',
+                'Pioneer',
+                'Tamarind',
+                'Cresent',
+                'Saraca'
               ],
               onChanged: (value) {
                 setState(() {
@@ -142,9 +230,28 @@ class _FilterPageState extends State<FilterPage> {
             MyDropDown(
               hintText: 'Select Country',
               options: [
-                'N/A', 'Singapore', 'Malaysia', 'India', 'Vietnam', 'Mexico', 'France', 'Australia', 'Japan',
-                'United States', 'Sweden', 'Canada', 'United Kingdom', 'China', 'Indonesia', 'South Korea',
-                'Spain', 'Germany', 'Thailand', 'Italy', 'Brazil', 'New Zealand'
+                'N/A',
+                'Singapore',
+                'Malaysia',
+                'India',
+                'Vietnam',
+                'Mexico',
+                'France',
+                'Australia',
+                'Japan',
+                'United States',
+                'Sweden',
+                'Canada',
+                'United Kingdom',
+                'China',
+                'Indonesia',
+                'South Korea',
+                'Spain',
+                'Germany',
+                'Thailand',
+                'Italy',
+                'Brazil',
+                'New Zealand'
               ],
               onChanged: (value) {
                 setState(() {

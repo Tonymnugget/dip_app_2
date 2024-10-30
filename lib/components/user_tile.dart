@@ -6,9 +6,9 @@ class UserTile extends StatelessWidget {
   final Widget? trailing; // New trailing widget for icons or buttons
 
   const UserTile({
-    super.key, 
-    required this.text, 
-    required this.onTap, 
+    super.key,
+    required this.text,
+    required this.onTap,
     this.trailing, // Optional trailing widget
   });
 
@@ -26,15 +26,14 @@ class UserTile extends StatelessWidget {
         child: Row(
           children: [
             // User icon
-            const Icon(Icons.person), 
+            const Icon(Icons.person),
             const SizedBox(width: 20),
 
             // Username text
             Expanded(
-              child: Text(text, style: TextStyle(color: Theme.of(context).colorScheme.inversePrimary),
-              ),
+              child: Text(text),
             ),
-            
+
             // Trailing widget (optional), e.g., message button
             if (trailing != null) trailing!,
           ],

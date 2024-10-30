@@ -1,3 +1,4 @@
+import 'package:dip_app_2/components/my_navigationbar.dart';
 import 'package:dip_app_2/components/my_tile.dart';
 import 'package:dip_app_2/services/database/firestore_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,9 +15,10 @@ class NotificationPage extends StatefulWidget {
 class _NotificationPageState extends State<NotificationPage> {
   final FirestoreService firestoreService = FirestoreService();
   final User? currentUser = FirebaseAuth.instance.currentUser;
-  
+
   // List to hold names and imageUrls of users who sent friend requests
-  List<Map<String, String?>> friendRequestDetails = []; // Holds both name and imageUrl
+  List<Map<String, String?>> friendRequestDetails =
+      []; // Holds both name and imageUrl
 
   @override
   void initState() {
@@ -62,7 +64,8 @@ class _NotificationPageState extends State<NotificationPage> {
       }
 
       setState(() {
-        friendRequestDetails = requestDetails; // Store the names and imageUrls in the state
+        friendRequestDetails =
+            requestDetails; // Store the names and imageUrls in the state
       });
     } catch (e) {
       print('Error fetching friend requests: $e');
@@ -75,22 +78,29 @@ class _NotificationPageState extends State<NotificationPage> {
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: Text(
-          "Notifications",
+          'Notifications',
           style: TextStyle(
-            color: Theme.of(context).colorScheme.inversePrimary,
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onPrimary,
           ),
         ),
-        backgroundColor: Colors.transparent,
-        foregroundColor: Colors.grey,
-        elevation: 0,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        centerTitle: true,
+        iconTheme: IconThemeData(
+          color: Theme.of(context).colorScheme.tertiary,
+        ),
       ),
+      bottomNavigationBar: MyNavigationBar(),
       body: Column(
         children: [
           // Friend Request tile
           MyTile(
-            text: 'Friend Requests', 
+            text: 'Friend Requests',
             subtitle: friendRequestDetails.isNotEmpty
-                ? friendRequestDetails.map((e) => e['name']).join(', ') // Display the first few names
+                ? friendRequestDetails
+                    .map((e) => e['name'])
+                    .join(', ') // Display the first few names
                 : 'No friend requests', // Default text if no requests
             leading: friendRequestDetails.isNotEmpty
                 ? _buildProfileImages() // Show stacked or single profile image(s)
@@ -99,11 +109,7 @@ class _NotificationPageState extends State<NotificationPage> {
               // Go to friend request page when tile is tapped
               Navigator.pushNamed(context, '/friend_request');
             },
-            trailing: IconButton(
-              icon: const Icon(Icons.arrow_right),
-              tooltip: 'Next page',
-              onPressed: () {},
-            ),
+            trailing: const Icon(Icons.arrow_forward_ios),
           ),
         ],
       ),
@@ -140,7 +146,7 @@ class _NotificationPageState extends State<NotificationPage> {
             ),
             // First user's image, slightly overlapped
             Positioned(
-              left: 10, 
+              left: 10,
               top: 10,
               child: CircleAvatar(
                 radius: 20,

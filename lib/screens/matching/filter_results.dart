@@ -46,22 +46,26 @@ class FilterResultsPage extends StatelessWidget {
     );
   }
 
-  // Build individual list tile for each user
   Widget _buildUserListItem(
       Map<String, dynamic> userData, BuildContext context) {
-    // Display all users except the current logged-in user
-    if (userData["email"] != _authService.getCurrentUser()!.email) {
+    // Check if userData contains 'email' and it is not null
+    final currentUserEmail = _authService.getCurrentUser()?.email;
+    if (currentUserEmail != null && userData["email"] != currentUserEmail) {
+      // Ensure name and imageUrl are not null
+      final userName = userData["name"] ??
+          'Unknown User'; // TODO: when user don't fill the name textfield when registering run into error, does not display all the users.
+      final imageUrl = userData['imageUrl'];
+
       return MyTile(
-        text: userData["name"],
+        text: userName,
         leading: CircleAvatar(
           radius: 20,
-          foregroundImage: userData['imageUrl'] != null
-              ? NetworkImage(userData['imageUrl']!)
+          foregroundImage: (imageUrl != null && imageUrl.isNotEmpty)
+              ? NetworkImage(imageUrl)
               : null,
           backgroundColor: Colors.grey,
         ),
         onTap: () {
-          // Navigate to UserDetailsPage and pass userData
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -71,7 +75,7 @@ class FilterResultsPage extends StatelessWidget {
         },
       );
     } else {
-      return Container(); // Return empty widget for the current user
+      return SizedBox.shrink(); // Return a widget that takes no space
     }
   }
 }

@@ -1,3 +1,4 @@
+import 'package:dip_app_2/components/my_biotext.dart';
 import 'package:dip_app_2/components/my_button.dart';
 import 'package:dip_app_2/components/my_dropdown.dart';
 import 'package:dip_app_2/components/my_multiselect.dart';
@@ -10,7 +11,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:io';
 
 class ProfileEditPage extends StatefulWidget {
-  
   const ProfileEditPage({super.key});
 
   @override
@@ -18,6 +18,9 @@ class ProfileEditPage extends StatefulWidget {
 }
 
 class _ProfileEditPageState extends State<ProfileEditPage> {
+  //text controllers
+  final TextEditingController _bioController = TextEditingController();
+
   // initializing strings
   String? selectedYear;
   String? selectedCourse;
@@ -38,13 +41,44 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
 
   // Available options for languages and interests
   final List<String> languages = [
-    'English', 'Chinese', 'Tamil', 'Malay', 'Spanish', 'French', 'Japanese', 'Korean', 'German'
+    'English',
+    'Chinese',
+    'Tamil',
+    'Malay',
+    'Spanish',
+    'French',
+    'Japanese',
+    'Korean',
+    'German'
   ];
 
   final List<String> interests = [
-    'Coding', 'Traveling', 'Chemistry', 'Photography', 'Piano', 'Swimming', 'Cycling', 'Finance',
-    'Literature', 'Ecology', 'Volunteering', 'Investing', 'Cooking', 'Guitar', 'Reading', 'Running', 'Yoga', 
-    'Soccer', 'Tennis', 'Basketball', 'Painting', 'Chess', 'Hiking', 'Construction', 'Gaming', 'Robotics'
+    'Coding',
+    'Traveling',
+    'Chemistry',
+    'Photography',
+    'Piano',
+    'Swimming',
+    'Cycling',
+    'Finance',
+    'Literature',
+    'Ecology',
+    'Volunteering',
+    'Investing',
+    'Cooking',
+    'Guitar',
+    'Reading',
+    'Running',
+    'Yoga',
+    'Soccer',
+    'Tennis',
+    'Basketball',
+    'Painting',
+    'Chess',
+    'Hiking',
+    'Construction',
+    'Gaming',
+    'Robotics'
   ];
 
   bool isLoading = true; // Added loading flag
@@ -61,7 +95,10 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
 
     if (user != null) {
       // Get user data from Firestore
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
 
       if (userDoc.exists) {
         Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
@@ -76,7 +113,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
           selectedStudentType = userData['studentType'];
           selectedLanguages = List<String>.from(userData['languages'] ?? []);
           selectedInterests = List<String>.from(userData['interests'] ?? []);
-          _existingImageUrl = userData['imageUrl']; // Existing profile image
+          _existingImageUrl = userData['imageUrl'];
 
           isLoading = false; // Data is loaded, stop loading
         });
@@ -93,9 +130,17 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
 
     if (user != null) {
       String? imageUrl;
+
+      if (_existingImageUrl != null) {
+        imageUrl = _existingImageUrl;
+      }
+
       // upload profile image if selected
       if (_selectedImage != null) {
-        final storageref = FirebaseStorage.instance.ref().child('user_images').child('${user.uid}.jpg');
+        final storageref = FirebaseStorage.instance
+            .ref()
+            .child('user_images')
+            .child('${user.uid}.jpg');
         // upload the file
         await storageref.putFile(_selectedImage!);
         imageUrl = await storageref.getDownloadURL();
@@ -110,6 +155,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
         'interests': selectedInterests,
         'languages': selectedLanguages,
         'studentType': selectedStudentType,
+        'bio': _bioController.text,
         'profileComplete': true,
         'imageUrl': imageUrl,
       }, SetOptions(merge: true));
@@ -124,17 +170,26 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Complete Profile')),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator()) // Show loading indicator
+          ? const Center(
+              child: CircularProgressIndicator()) // Show loading indicator
           : Center(
               child: ListView(
                 children: [
                   UserImagePicker(
                     onPickImage: (pickedImage) {
-                      setState(() {
-                        _selectedImage = pickedImage;
-                      });
+                      if (pickedImage != null) {
+                        setState(() {
+                          _selectedImage = pickedImage;
+                        });
+                      }
                     },
                     exisitingImageUrl: _existingImageUrl,
+                  ),
+
+                  MyBioField(
+                    hintText: "Edit Bio",
+                    obscureText: false,
+                    controller: _bioController,
                   ),
 
                   MyDropDown(
@@ -151,10 +206,24 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                   MyDropDown(
                     hintText: 'Select Course',
                     options: [
-                      'Electrical Engineering', 'Data Science', 'Economics', 'Information Systems', 'Finance',
-                      'Architecture', 'Computer Science', 'Humanities', 'Biological Sciences', 'Social Work',
-                      'Biomedical Engineering', 'Business', 'Mechanical Engineering', 'Psychology',
-                      'Chemical Engineering', 'Aerospace Engineering', 'Environmental Science', 'Civil Engineering',
+                      'Electrical Engineering',
+                      'Data Science',
+                      'Economics',
+                      'Information Systems',
+                      'Finance',
+                      'Architecture',
+                      'Computer Science',
+                      'Humanities',
+                      'Biological Sciences',
+                      'Social Work',
+                      'Biomedical Engineering',
+                      'Business',
+                      'Mechanical Engineering',
+                      'Psychology',
+                      'Chemical Engineering',
+                      'Aerospace Engineering',
+                      'Environmental Science',
+                      'Civil Engineering',
                       'Mathematics'
                     ],
                     initialValue: selectedCourse,
@@ -168,9 +237,27 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                   MyDropDown(
                     hintText: 'Select Country',
                     options: [
-                      'Singapore', 'Malaysia', 'India', 'Vietnam', 'Mexico', 'France', 'Australia', 'Japan',
-                      'United States', 'Sweden', 'Canada', 'United Kingdom', 'China', 'Indonesia', 'South Korea',
-                      'Spain', 'Germany', 'Thailand', 'Italy', 'Brazil', 'New Zealand'
+                      'Singapore',
+                      'Malaysia',
+                      'India',
+                      'Vietnam',
+                      'Mexico',
+                      'France',
+                      'Australia',
+                      'Japan',
+                      'United States',
+                      'Sweden',
+                      'Canada',
+                      'United Kingdom',
+                      'China',
+                      'Indonesia',
+                      'South Korea',
+                      'Spain',
+                      'Germany',
+                      'Thailand',
+                      'Italy',
+                      'Brazil',
+                      'New Zealand'
                     ],
                     initialValue: selectedCountry,
                     onChanged: (value) {
@@ -194,9 +281,28 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                   MyDropDown(
                     hintText: 'Select Hall',
                     options: [
-                      'Hall 1', 'Hall 2', 'Hall 3', 'Hall 4', 'Hall 5', 'Hall 6', 'Hall 7', 'Hall 8', 'Hall 9',
-                      'Hall 10', 'Hall 11', 'Hall 12', 'Hall 13', 'Hall 14', 'Hall 15', 'Hall 16', 'Maple Residency',
-                      'Tanjong', 'Pioneer', 'Tamarind', 'Cresent', 'Saraca'
+                      'Hall 1',
+                      'Hall 2',
+                      'Hall 3',
+                      'Hall 4',
+                      'Hall 5',
+                      'Hall 6',
+                      'Hall 7',
+                      'Hall 8',
+                      'Hall 9',
+                      'Hall 10',
+                      'Hall 11',
+                      'Hall 12',
+                      'Hall 13',
+                      'Hall 14',
+                      'Hall 15',
+                      'Hall 16',
+                      'Maple Residency',
+                      'Tanjong',
+                      'Pioneer',
+                      'Tamarind',
+                      'Cresent',
+                      'Saraca'
                     ],
                     initialValue: selectedHall,
                     onChanged: (value) {
