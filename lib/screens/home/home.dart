@@ -65,7 +65,9 @@ class HomePage extends StatelessWidget {
             MyIconButton(
               icon: Icons.local_dining,
               size: 60,
-              onTap: () {},
+              onTap: () {
+                Navigator.pushNamed(context, '/food_finder');
+              },
             ),
           ],
         ),

@@ -34,7 +34,10 @@ class _MyDropDownState extends State<MyDropDown> {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: DropdownButtonFormField<String>(
+        dropdownColor: Color.fromARGB(255, 217, 217, 217),
         decoration: InputDecoration(
+          filled: true,
+          fillColor: Theme.of(context).colorScheme.secondary,
           labelText: widget.hintText,
           border: OutlineInputBorder(),
         ),

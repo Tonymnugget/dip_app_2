@@ -1,3 +1,4 @@
+import 'package:dip_app_2/screens/food_finder/food_finder.dart';
 import 'package:dip_app_2/screens/friends/friends.dart';
 import 'package:dip_app_2/screens/matching/filter.dart';
 import 'package:dip_app_2/screens/matching/friend_finder.dart';
@@ -50,6 +51,7 @@ class MyApp extends StatelessWidget {
           '/friends': (context) => FriendsPage(),
           '/settings': (context) => SettingsPage(),
           '/edit_profile': (context) => ProfileEditPage(),
+          '/food_finder': (context) => CategoryScreen(),
         });
   }
 }
