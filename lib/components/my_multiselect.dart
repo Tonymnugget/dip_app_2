@@ -18,10 +18,10 @@ class MyMultiSelect extends StatefulWidget {
   });
 
   @override
-  _MyMultiSelectState createState() => _MyMultiSelectState();
+  MyMultiSelectState createState() => MyMultiSelectState();
 }
 
-class _MyMultiSelectState extends State<MyMultiSelect> {
+class MyMultiSelectState extends State<MyMultiSelect> {
   // Function to show the multi-select dialog
   Future<void> _showMultiSelectDialog() async {
     List<String> tempSelectedValues =
@@ -95,8 +95,8 @@ class _MyMultiSelectState extends State<MyMultiSelect> {
           widget.selectedValues.isNotEmpty
               ? widget.selectedValues.join(", ")
               : widget.hintText,
-          style: const TextStyle(
-            color: Colors.black,
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
             fontSize: 14,
           ),
         ),

@@ -9,9 +9,8 @@ class CanteenScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("category:$categoryId:");
     return Scaffold(
-      appBar: AppBar(title: Text('Canteens')),
+      appBar: AppBar(title: const Text('Canteens')),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('categories')
@@ -19,35 +18,63 @@ class CanteenScreen extends StatelessWidget {
             .collection('canteens')
             .snapshots(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return CircularProgressIndicator();
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Center(child: Text("Error: ${snapshot.error}"));
+          }
+
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(child: Text("No canteens available"));
+          }
+
           var canteens = snapshot.data!.docs;
 
           return ListView.builder(
             itemCount: canteens.length,
             itemBuilder: (context, index) {
               var canteen = canteens[index];
-              Map<String, dynamic>? canteenData =
-                  canteen.data() as Map<String, dynamic>?;
+              var canteenData = canteen.data() as Map<String, dynamic>;
 
-              // Check if the imageUrl field exists
-              String? imageUrl =
-                  canteenData != null && canteenData.containsKey('imageUrl')
-                      ? canteenData['imageUrl']
-                      : null;
+              // Access the image URL and name
+              String? imageUrl = canteenData['imageURL'] as String?;
+              imageUrl ??= canteenData['imageUrl'] as String?;
+
+              String canteenName = canteenData['name'] ?? canteen.id;
 
               return ListTile(
-                title: Text(canteen.id),
+                title: Text(
+                  canteenName,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Conditionally display image if the URL is not null or empty
+                    const SizedBox(height: 8),
                     imageUrl != null && imageUrl.isNotEmpty
-                        ? Image.network(imageUrl, height: 100)
+                        ? Image.network(
+                            imageUrl,
+                            height: 100,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                height: 100,
+                                color: Colors.grey,
+                                child: const Center(
+                                    child: Text("Failed to load image")),
+                              );
+                            },
+                          )
                         : Container(
                             height: 100,
                             color: Colors.grey,
-                            child: Center(child: Text("No Image Available")),
-                          ), // Placeholder for missing image
+                            child:
+                                const Center(child: Text("No Image Available")),
+                          ),
+                    const SizedBox(height: 8),
                   ],
                 ),
                 onTap: () {

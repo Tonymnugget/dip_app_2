@@ -18,10 +18,10 @@ class MyDropDown extends StatefulWidget {
   });
 
   @override
-  _MyDropDownState createState() => _MyDropDownState();
+  MyDropDownState createState() => MyDropDownState();
 }
 
-class _MyDropDownState extends State<MyDropDown> {
+class MyDropDownState extends State<MyDropDown> {
   String? selectedValue; // Internal state for managing selected value
 
   @override
@@ -76,12 +76,17 @@ class _MyDropDownState extends State<MyDropDown> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 ),
                 value: selectedValue,
                 items: widget.options.map((String option) {
                   return DropdownMenuItem<String>(
                     value: option,
-                    child: Text(option),
+                    child: Text(
+                      option,
+                      style: TextStyle(fontSize: 14),
+                    ),
                   );
                 }).toList(),
                 onChanged: (String? newValue) {

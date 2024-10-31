@@ -10,10 +10,10 @@ class FriendFinderPage extends StatefulWidget {
   const FriendFinderPage({super.key});
 
   @override
-  _FriendFinderPageState createState() => _FriendFinderPageState();
+  FriendFinderPageState createState() => FriendFinderPageState();
 }
 
-class _FriendFinderPageState extends State<FriendFinderPage> {
+class FriendFinderPageState extends State<FriendFinderPage> {
   final FirestoreService firestoreService = FirestoreService();
   bool showInstructions = true; // Track whether to show instructions
   // Cache the future returned by firestoreService.getProfileData(user.uid) to avoid

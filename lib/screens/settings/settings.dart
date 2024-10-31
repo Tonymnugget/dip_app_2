@@ -1,6 +1,5 @@
 import 'package:dip_app_2/components/my_navigationbar.dart';
 import 'package:dip_app_2/theme/theme_provider.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -34,7 +33,7 @@ class SettingsPage extends StatelessWidget {
             // Dark mode tile
             ListTile(
               title: Text("dark mode"),
-              trailing: Switch(
+              trailing: Switch.adaptive(
                 onChanged: (value) =>
                     Provider.of<ThemeProvider>(context, listen: false)
                         .toggleTheme(),

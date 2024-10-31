@@ -4,7 +4,6 @@ import 'package:dip_app_2/services/auth/auth_service.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatelessWidget {
-  
   final void Function()? onTap;
 
   LoginPage({super.key, required this.onTap});
@@ -17,7 +16,7 @@ class LoginPage extends StatelessWidget {
   void login(BuildContext context) async {
     // auth service
     final authService = AuthService();
-  
+
     // try login
     try {
       await authService.signin(_emailController.text, _passwordController.text);
@@ -26,7 +25,7 @@ class LoginPage extends StatelessWidget {
     // catch any errors
     catch (e) {
       showDialog(
-        context: context, 
+        context: context,
         builder: (context) => AlertDialog(
           title: Text(e.toString()),
         ),
@@ -50,21 +49,21 @@ class LoginPage extends StatelessWidget {
                 size: 80,
                 color: Theme.of(context).colorScheme.inversePrimary,
               ),
-              
+
               const SizedBox(height: 25),
-              
+
               // app name
               const Text(
                 "A P P N A M E",
-                style:TextStyle(fontSize: 20),
+                style: TextStyle(fontSize: 20),
               ),
-              
+
               const SizedBox(height: 50),
-          
+
               // email textfield
               MyTextField(
-                hintText: "Email: username@e.ntu.edu.sg", 
-                obscureText: false, 
+                hintText: "Email: username@e.ntu.edu.sg",
+                obscureText: false,
                 controller: _emailController,
               ),
 
@@ -72,24 +71,28 @@ class LoginPage extends StatelessWidget {
 
               // password textfield
               MyTextField(
-                hintText: "Password", 
-                obscureText: true, 
+                hintText: "Password",
+                obscureText: true,
                 controller: _passwordController,
               ),
 
-              const SizedBox(height: 10,),
+              const SizedBox(
+                height: 10,
+              ),
 
               // forgot password
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Text("Forgot Password", style: TextStyle(color: Theme.of(context).colorScheme.inversePrimary)),
+                  Text("Forgot Password",
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.inversePrimary)),
                 ],
               ),
 
               const SizedBox(height: 25),
 
-              // sign in button 
+              // sign in button
               MyButton(
                 text: "Sign in",
                 onTap: () => login(context),

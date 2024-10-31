@@ -21,6 +21,9 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
   //text controllers
   final TextEditingController _bioController = TextEditingController();
 
+  // var to store name
+  String? name;
+
   // initializing strings
   String? selectedYear;
   String? selectedCourse;
@@ -105,6 +108,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
 
         // Update the fields with existing data
         setState(() {
+          name = userData['name'];
           selectedYear = userData['year'];
           selectedCourse = userData['course'];
           selectedCountry = userData['country'];
@@ -168,22 +172,72 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Complete Profile')),
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: AppBar(
+        title: Text(
+          'Complete Profile',
+          style: TextStyle(
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onPrimary,
+          ),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        centerTitle: true,
+        iconTheme: IconThemeData(
+          color: Theme.of(context).colorScheme.tertiary,
+        ),
+      ),
       body: isLoading
           ? const Center(
               child: CircularProgressIndicator()) // Show loading indicator
           : Center(
               child: ListView(
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                 children: [
-                  UserImagePicker(
-                    onPickImage: (pickedImage) {
-                      if (pickedImage != null) {
-                        setState(() {
-                          _selectedImage = pickedImage;
-                        });
-                      }
-                    },
-                    exisitingImageUrl: _existingImageUrl,
+                  // profile card
+                  Center(
+                    child: Container(
+                      width: 350,
+                      height: 190,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                        color: Theme.of(context).colorScheme.secondary,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 10,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      padding: EdgeInsets.all(10),
+                      child: Column(
+                        children: [
+                          UserImagePicker(
+                            onPickImage: (pickedImage) {
+                              if (pickedImage != null) {
+                                setState(() {
+                                  _selectedImage = pickedImage;
+                                });
+                              }
+                            },
+                            exisitingImageUrl: _existingImageUrl,
+                          ),
+                          const SizedBox(height: 8),
+
+                          // Name
+                          Text(
+                            '$name',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
 
                   MyBioField(

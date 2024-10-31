@@ -222,7 +222,7 @@ class FirestoreService {
       print('Friend request from $senderId accepted');
     } catch (e) {
       print('Error accepting friend request: $e');
-      throw e;
+      rethrow;
     }
   }
 
@@ -246,7 +246,7 @@ class FirestoreService {
           .delete();
     } catch (e) {
       print('Error deleting friend request: $e');
-      throw e;
+      rethrow;
     }
   }
 }

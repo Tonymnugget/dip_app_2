@@ -22,60 +22,78 @@ class StallScreen extends StatelessWidget {
             .collection('stalls')
             .snapshots(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return CircularProgressIndicator();
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(child: Text("No stalls available"));
+          }
+
           var stalls = snapshot.data!.docs;
-          print("stalls:$stalls");
+          // print("stalls:$stalls"); // For debugging
 
           return ListView.builder(
             itemCount: stalls.length,
             itemBuilder: (context, index) {
               var stall = stalls[index];
-              print("stall:$stall");
+              // print("stall:$stall"); // For debugging
               String stallId = stall.id;
-              Map<String, dynamic>? stallData =
-                  stall.data() as Map<String, dynamic>?;
+              Map<String, dynamic> stallData =
+                  stall.data() as Map<String, dynamic>;
 
-              // Check if the fields exist before trying to access them
-              int? thumbsUp =
-                  stallData != null && stallData.containsKey('thumbsUp')
-                      ? stallData['thumbsUp']
-                      : null;
-              int? thumbsDown =
-                  stallData != null && stallData.containsKey('thumbsDown')
-                      ? stallData['thumbsDown']
-                      : null;
-              String? imageUrl =
-                  stallData != null && stallData.containsKey('imageUrl')
-                      ? stallData['imageUrl']
-                      : null;
+              // Access the imageUrl directly
+              String? imageUrl = stallData['imageUrl'] as String?;
+              // If 'imageUrl' is null, try 'imageURL'
+              imageUrl ??= stallData['imageURL'] as String?;
+
+              // Access thumbsUp and thumbsDown
+              int? thumbsUp = stallData['thumbsUp'] as int?;
+              int? thumbsDown = stallData['thumbsDown'] as int?;
 
               return ListTile(
-                title: Text(stallId),
+                title: Text(
+                  stallId,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Conditionally display image if the URL is not null or empty
+                    const SizedBox(height: 8),
                     imageUrl != null && imageUrl.isNotEmpty
-                        ? Image.network(imageUrl, height: 100)
+                        ? Image.network(
+                            imageUrl,
+                            height: 100,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                height: 100,
+                                color: Colors.grey,
+                                child: const Center(
+                                    child: Text("Failed to load image")),
+                              );
+                            },
+                          )
                         : Container(
                             height: 100,
                             color: Colors.grey,
-                            child: Center(child: Text("No Image Available")),
-                          ), // Placeholder for missing image
-
-                    // Conditionally display thumbs up if the field exists
+                            child:
+                                const Center(child: Text("No Image Available")),
+                          ),
+                    const SizedBox(height: 8),
                     if (thumbsUp != null) Text("Likes: $thumbsUp"),
                     if (thumbsDown != null) Text("Dislikes: $thumbsDown"),
                     Row(
                       children: [
                         IconButton(
-                          icon: Icon(Icons.thumb_up),
+                          icon: const Icon(Icons.thumb_up),
                           onPressed: () {
                             incrementThumbsUp(categoryId, canteenId, stallId);
                           },
                         ),
                         IconButton(
-                          icon: Icon(Icons.thumb_down),
+                          icon: const Icon(Icons.thumb_down),
                           onPressed: () {
                             incrementThumbsDown(categoryId, canteenId, stallId);
                           },

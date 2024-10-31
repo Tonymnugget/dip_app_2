@@ -39,7 +39,7 @@ class MyNavigationBar extends StatelessWidget {
             ),
             IconButton(
               icon: const Icon(
-                Icons.person,
+                Icons.person_search,
                 color: Colors.white,
                 size: 30,
               ),
@@ -58,7 +58,7 @@ class MyNavigationBar extends StatelessWidget {
             ),
             IconButton(
               icon: const Icon(
-                Icons.explore,
+                Icons.person_pin,
                 color: Colors.white,
                 size: 30,
               ),
