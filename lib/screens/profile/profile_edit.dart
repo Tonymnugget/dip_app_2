@@ -1,5 +1,5 @@
 import 'package:dip_app_2/components/my_biotext.dart';
-import 'package:dip_app_2/components/my_button.dart';
+import 'package:dip_app_2/components/my_button_2.dart';
 import 'package:dip_app_2/components/my_dropdown.dart';
 import 'package:dip_app_2/components/my_multiselect.dart';
 import 'package:dip_app_2/components/user_image_picker.dart';
@@ -240,6 +240,8 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                     ),
                   ),
 
+                  const SizedBox(height: 10),
+
                   MyBioField(
                     hintText: "Edit Bio",
                     obscureText: false,
@@ -418,9 +420,13 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                   const SizedBox(height: 20),
 
                   // submit the new values to firestore
-                  MyButton(
-                    text: "Complete profile",
-                    onTap: () => completeProfile(context),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: MyButton2(
+                      color: Color.fromARGB(255, 124, 227, 144),
+                      text: "Complete profile",
+                      onTap: () => completeProfile(context),
+                    ),
                   ),
                 ],
               ),

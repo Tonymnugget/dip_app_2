@@ -1,4 +1,6 @@
+import 'package:dip_app_2/helper/navigator_animation.dart';
 import 'package:dip_app_2/screens/chat/chat.dart';
+import 'package:dip_app_2/screens/friends/friends.dart';
 import 'package:dip_app_2/services/database/firestore_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -14,8 +16,8 @@ class FriendsListTile extends StatelessWidget {
       String friendEmail, String friendName, String profileImageUrl) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => ChatPage(
+      CustomNavigator.createSlideRoute(
+        ChatPage(
           receiverEmail: friendEmail,
           receiverID: friendId,
           receiverName: friendName,
@@ -106,7 +108,10 @@ class FriendsListTile extends StatelessWidget {
                     InkWell(
                       onTap: () {
                         // Naviagte to FriendsPage when the container is tapped
-                        Navigator.pushNamed(context, '/friends');
+                        Navigator.push(
+                          context,
+                          CustomNavigator.createSlideRoute(FriendsPage()),
+                        );
                       },
                       child: Container(
                         padding: const EdgeInsets.all(8.0),

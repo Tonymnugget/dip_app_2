@@ -25,6 +25,13 @@ class ChatService {
   ]
   */
 
+  // Function to generate chat room ID for two users
+  String getChatRoomId(String userId1, String userId2) {
+    List<String> ids = [userId1, userId2];
+    ids.sort(); // Ensure the IDs are in a consistent order
+    return ids.join('_'); // Join the sorted IDs with an underscore
+  }
+
   Stream<List<Map<String, dynamic>>> getUsersStream() {
     return _firestore.collection("users").snapshots().map((snapshot) {
       return snapshot.docs.map((doc) {
@@ -55,6 +62,7 @@ class ChatService {
         receiverID: receiverID,
         message: message,
         timestamp: timestamp,
+        isUnread: true,
       );
 
       // construct chat room ID for the two users (sorted to ensure uniqueness)
@@ -87,6 +95,45 @@ class ChatService {
         .collection("messages")
         .orderBy("timestamp", descending: false)
         .snapshots();
+  }
+
+// TODO: currently not being used. Hard to implement with current logic in FriendsPage
+  Future<int> numberOfUnreadMessages(String chatRoomID, String userID) async {
+    try {
+      final QuerySnapshot unreadMessagesSnapshot = await _firestore
+          .collection("chat_rooms")
+          .doc(chatRoomID)
+          .collection("messages")
+          .where('isUnread', isEqualTo: true)
+          .get();
+
+      return unreadMessagesSnapshot.size;
+    } catch (e) {
+      print('Failed to mark messages as read: $e');
+      return 0;
+    }
+  }
+
+  Future<void> markMessagesAsRead(String chatRoomID, String userID) async {
+    try {
+      final QuerySnapshot unreadMessagesSnapshot = await _firestore
+          .collection("chat_rooms")
+          .doc(chatRoomID)
+          .collection("messages")
+          .where('receiverID', isEqualTo: userID)
+          .where('isUnread', isEqualTo: true)
+          .get();
+
+      WriteBatch batch = _firestore.batch();
+
+      for (var doc in unreadMessagesSnapshot.docs) {
+        await doc.reference.update({'isUnread': false});
+      }
+
+      await batch.commit();
+    } catch (e) {
+      print('Failed to mark messages as read: $e');
+    }
   }
 
   Future<void> incrementChatFrequency(
@@ -128,5 +175,33 @@ class ChatService {
     } catch (error) {
       print("Failed to update chat frequency: $error");
     }
+  }
+
+  Future<QuerySnapshot> getMessages({
+    required String chatRoomID,
+    int limit = 20,
+    DocumentSnapshot? startAfter,
+  }) {
+    Query query = FirebaseFirestore.instance
+        .collection("chat_rooms")
+        .doc(chatRoomID)
+        .collection("messages")
+        .orderBy('timestamp', descending: true)
+        .limit(limit);
+
+    if (startAfter != null) {
+      query = query.startAfterDocument(startAfter);
+    }
+
+    return query.get();
+  }
+
+  Stream<QuerySnapshot> getMessagesStream({required String chatRoomID}) {
+    return FirebaseFirestore.instance
+        .collection("chat_rooms")
+        .doc(chatRoomID)
+        .collection("messages")
+        .orderBy('timestamp')
+        .snapshots();
   }
 }

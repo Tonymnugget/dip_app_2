@@ -25,6 +25,13 @@ class ChatBubble extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
           margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
           decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 5),
+              ),
+            ],
             // if isCurrentUser chat buble = green if not chat bubble = white
             color: isCurrentUser
                 ? const Color.fromARGB(255, 46, 180, 234)

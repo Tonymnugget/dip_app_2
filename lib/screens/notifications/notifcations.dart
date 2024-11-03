@@ -1,5 +1,7 @@
 import 'package:dip_app_2/components/my_navigationbar.dart';
 import 'package:dip_app_2/components/my_tile.dart';
+import 'package:dip_app_2/helper/navigator_animation.dart';
+import 'package:dip_app_2/screens/notifications/friend_request.dart';
 import 'package:dip_app_2/services/database/firestore_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -106,7 +108,10 @@ class _NotificationPageState extends State<NotificationPage> {
                 _buildProfileImages(), // Show stacked or single profile image(s)
             onTap: () {
               // Go to friend request page when tile is tapped
-              Navigator.pushNamed(context, '/friend_request');
+              Navigator.push(
+                context,
+                CustomNavigator.createSlideRoute(FriendRequestPage()),
+              ).then((_) => _fetchFriendRequests());
             },
             trailing: const Icon(Icons.arrow_forward_ios),
           ),

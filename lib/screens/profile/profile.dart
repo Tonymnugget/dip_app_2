@@ -1,5 +1,7 @@
 import 'package:dip_app_2/components/my_chip.dart';
 import 'package:dip_app_2/components/my_navigationbar.dart';
+import 'package:dip_app_2/helper/navigator_animation.dart';
+import 'package:dip_app_2/screens/profile/profile_edit.dart';
 import 'package:dip_app_2/services/auth/auth_service.dart';
 import 'package:dip_app_2/services/database/firestore_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -201,7 +203,9 @@ class ProfilePage extends StatelessWidget {
                               right: 10,
                               child: IconButton(
                                 onPressed: () {
-                                  Navigator.pushNamed(context, '/edit_profile');
+                                  CustomNavigator
+                                      .navigateWithNoAnimationWithBack(
+                                          context, ProfileEditPage());
                                 },
                                 icon: Icon(Icons.edit_square),
                                 iconSize: 30,
@@ -228,6 +232,7 @@ class ProfilePage extends StatelessWidget {
                             // Navigate to Invite Friends
                           },
                         ),
+                        const SizedBox(height: 10),
                       ],
                     ),
                   ),

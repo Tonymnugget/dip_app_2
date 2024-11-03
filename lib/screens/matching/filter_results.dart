@@ -1,5 +1,6 @@
 import 'package:dip_app_2/components/my_navigationbar.dart';
 import 'package:dip_app_2/components/my_tile.dart';
+import 'package:dip_app_2/helper/navigator_animation.dart';
 import 'package:dip_app_2/screens/matching/user_details.dart';
 import 'package:dip_app_2/services/auth/auth_service.dart';
 import 'package:flutter/material.dart';
@@ -74,8 +75,8 @@ class FilterResultsPage extends StatelessWidget {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => UserDetailsPage(userData: userData),
+            CustomNavigator.createSlideRoute(
+              UserDetailsPage(userData: userData),
             ),
           );
         },

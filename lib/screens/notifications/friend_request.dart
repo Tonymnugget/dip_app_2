@@ -1,5 +1,8 @@
+import 'package:dip_app_2/components/my_button_3.dart';
 import 'package:dip_app_2/components/my_navigationbar.dart';
 import 'package:dip_app_2/components/my_tile.dart';
+import 'package:dip_app_2/helper/navigator_animation.dart';
+import 'package:dip_app_2/screens/matching/user_details.dart';
 import 'package:dip_app_2/services/database/firestore_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -19,7 +22,7 @@ class FriendRequestPage extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: Text(
-          'Notifications',
+          'Follow Requests',
           style: TextStyle(
             fontFamily: 'Poppins',
             fontWeight: FontWeight.bold,
@@ -94,6 +97,14 @@ class FriendRequestPage extends StatelessWidget {
 
         return MyTile(
           text: senderData['name'] ?? 'Unknown', // Display sender's name
+          onTap: () {
+            Navigator.push(
+              context,
+              CustomNavigator.createSlideRoute(
+                UserDetailsPage(userData: senderData),
+              ),
+            );
+          },
           leading: CircleAvatar(
             radius: 20,
             backgroundColor: Colors.grey,
@@ -108,32 +119,36 @@ class FriendRequestPage extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               // Accept button
-              ElevatedButton(
-                onPressed: () async {
+              MyButton3(
+                color: Color.fromARGB(255, 99, 175, 99),
+                onTap: () async {
                   final currentUserId = currentUser!.uid;
                   await firestoreService.acceptFriendRequest(
                       senderId, currentUserId);
                 },
-                child: const Text('Accept'),
+                icon: Icon(
+                  Icons.check,
+                  color: Colors.white,
+                ),
               ),
 
               const SizedBox(width: 8),
 
               // Delete button
-              ElevatedButton(
-                onPressed: () async {
+              MyButton3(
+                onTap: () async {
                   final currentUserId = currentUser!.uid;
                   await firestoreService.deleteFriendRequest(
                       senderId, currentUserId);
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red, // Red for delete button
+                icon: const Icon(
+                  Icons.close,
+                  color: Colors.white,
                 ),
-                child: const Text('Delete'),
+                color: Color.fromARGB(255, 206, 64, 64),
               ),
             ],
           ),
-          onTap: () {},
         );
       },
     );

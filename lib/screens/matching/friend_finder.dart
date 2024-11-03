@@ -1,5 +1,9 @@
+import 'package:dip_app_2/components/my_button_3.dart';
 import 'package:dip_app_2/components/my_friendltile.dart';
 import 'package:dip_app_2/components/my_navigationbar.dart';
+import 'package:dip_app_2/helper/navigator_animation.dart';
+import 'package:dip_app_2/screens/matching/filter.dart';
+import 'package:dip_app_2/screens/notifications/notifcations.dart';
 import 'package:dip_app_2/services/auth/auth_service.dart';
 import 'package:dip_app_2/services/database/firestore_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,7 +19,7 @@ class FriendFinderPage extends StatefulWidget {
 
 class FriendFinderPageState extends State<FriendFinderPage> {
   final FirestoreService firestoreService = FirestoreService();
-  bool showInstructions = true; // Track whether to show instructions
+  bool showInstructions = true; // Track whether to show instructionsR
   // Cache the future returned by firestoreService.getProfileData(user.uid) to avoid
   // Rebuilding Futures, only rebuild when needed
   Future<Map<String, dynamic>?>? _profileDataFuture;
@@ -90,21 +94,23 @@ class FriendFinderPageState extends State<FriendFinderPage> {
                 ),
               ),
               actions: [
-                TextButton(
-                  onPressed: () {
+                MyButton3(
+                  color: Colors.white,
+                  onTap: () {
                     Navigator.of(context)
                         .pop(); // Close the dialog without action
                   },
-                  child: const Text("Cancel"),
+                  text: "Cancel",
                 ),
-                ElevatedButton(
-                  onPressed: () {
+                MyButton3(
+                  color: Color.fromARGB(255, 137, 201, 220),
+                  onTap: () {
                     _setPreference(
                         !dontShowAgain); // Save preference based on checkbox
                     Navigator.of(context).pop(); // Close dialog
                     _navigateToFilterPage();
                   },
-                  child: const Text("Start"),
+                  text: "Start",
                 ),
               ],
             );
@@ -116,8 +122,12 @@ class FriendFinderPageState extends State<FriendFinderPage> {
 
   // Navigate to the FilterPage
   void _navigateToFilterPage() {
-    Navigator.pushNamed(
-        context, '/filter'); // Replace with your FilterPage route
+    Navigator.push(
+      context,
+      CustomNavigator.createSlideRoute(
+        FilterPage(),
+      ),
+    ); // Replace with your FilterPage route
   }
 
   // Handle the Select Filters button tap
@@ -281,7 +291,12 @@ class FriendFinderPageState extends State<FriendFinderPage> {
                               ),
                             ),
                             onTap: () {
-                              Navigator.pushNamed(context, '/notification');
+                              Navigator.push(
+                                context,
+                                CustomNavigator.createSlideRoute(
+                                  NotificationPage(),
+                                ),
+                              );
                             },
                             trailing: const Icon(Icons.arrow_forward_ios),
                           ),

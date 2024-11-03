@@ -1,5 +1,6 @@
 import 'package:dip_app_2/components/my_button_2.dart';
 import 'package:dip_app_2/components/my_navigationbar.dart';
+import 'package:dip_app_2/helper/navigator_animation.dart';
 import 'package:dip_app_2/screens/matching/filter_results.dart';
 import 'package:dip_app_2/services/database/firestore_service.dart';
 import 'package:flutter/material.dart';
@@ -95,8 +96,8 @@ class _FilterPageState extends State<FilterPage> {
     // Navigate to FilterResultsPage with filtered users
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => FilterResultsPage(filteredUsers: users),
+      CustomNavigator.createSlideRoute(
+        FilterResultsPage(filteredUsers: users),
       ),
     );
   }

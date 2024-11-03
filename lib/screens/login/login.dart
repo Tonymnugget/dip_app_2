@@ -54,7 +54,7 @@ class LoginPage extends StatelessWidget {
 
               // app name
               const Text(
-                "A P P N A M E",
+                "O R B I T",
                 style: TextStyle(fontSize: 20),
               ),
 

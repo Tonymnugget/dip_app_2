@@ -249,4 +249,58 @@ class FirestoreService {
       rethrow;
     }
   }
+
+  // Function to check whether is already friend
+  Future<bool> isFriend(String currentUserID, String otherUserID) async {
+    final friendDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUserID)
+        .collection('friends')
+        .doc(otherUserID)
+        .get();
+    return friendDoc.exists;
+  }
+
+  // Block User
+  Future<void> blockUserInFirebase(String userId) async {
+    // get current user id
+    final currentUserId = authService.getCurrentUser()!.uid;
+
+    // add this user to blocked list
+    await _firestore
+        .collection('users')
+        .doc(currentUserId)
+        .collection('blockedUsers')
+        .doc(userId)
+        .set({});
+  }
+
+  // Unblock user
+  Future<void> unblockUserInFirebase(String blockedUserId) async {
+    // get current user id
+    final currentUserId = authService.getCurrentUser()!.uid;
+
+    // remove this user from blocked list
+    await _firestore
+        .collection('users')
+        .doc(currentUserId)
+        .collection('blockedUsers')
+        .doc(blockedUserId)
+        .delete();
+  }
+
+  // Get list of blocked user ids
+  Future<List<String>> getBlockedUidsFromFirebase() async {
+    // get current user id
+    final currentUserId = authService.getCurrentUser()!.uid;
+
+    final snapshot = await _firestore
+        .collection('users')
+        .doc(currentUserId)
+        .collection('blockedUsers')
+        .get();
+
+    // return as a list of uids
+    return snapshot.docs.map((doc) => doc.id).toList();
+  }
 }

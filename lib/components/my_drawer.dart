@@ -113,6 +113,8 @@ class MyDrawer extends StatelessWidget {
 
                 // sign out
                 await AuthService().signout();
+
+                Navigator.pushReplacementNamed(context, '/auth_wrapper');
               },
             ),
           ),

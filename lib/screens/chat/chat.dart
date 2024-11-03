@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dip_app_2/components/chat_bubble.dart';
 import 'package:dip_app_2/components/my_profile_button.dart';
+import 'package:dip_app_2/helper/navigator_animation.dart';
+import 'package:dip_app_2/screens/matching/user_details.dart';
 import 'package:dip_app_2/services/auth/auth_service.dart';
 import 'package:dip_app_2/services/chat/chat_service.dart';
 import 'package:flutter/material.dart';
@@ -111,11 +113,30 @@ class _ChatPageState extends State<ChatPage> {
               .tertiary, // Change the back arrow color to white
         ),
         actions: [
-          MyProfileButton(
-            profileImageUrl: widget.profileImageUrl,
-            onTap: () {
-              print("profile pic tapped");
-            },
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: MyProfileButton(
+              profileImageUrl: widget.profileImageUrl,
+              onTap: () async {
+                // Fetch userData from Firestore
+                DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(widget.receiverID)
+                    .get();
+
+                if (userSnapshot.exists) {
+                  Map<String, dynamic> userData =
+                      userSnapshot.data() as Map<String, dynamic>;
+
+                  // Navigate to UserDetailsPage with the userData
+                  Navigator.push(
+                    context,
+                    CustomNavigator.createSlideRoute(
+                        UserDetailsPage(userData: userData)),
+                  );
+                }
+              },
+            ),
           )
         ],
       ),

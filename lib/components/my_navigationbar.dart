@@ -1,8 +1,9 @@
+import 'package:dip_app_2/helper/navigator_animation.dart';
 import 'package:dip_app_2/screens/food_finder/food_finder.dart';
+import 'package:dip_app_2/screens/friends/friends.dart';
 import 'package:dip_app_2/screens/home/home.dart';
 import 'package:dip_app_2/screens/matching/friend_finder.dart';
 import 'package:dip_app_2/screens/profile/profile.dart';
-import 'package:dip_app_2/screens/settings/settings.dart';
 import 'package:flutter/material.dart';
 
 class MyNavigationBar extends StatelessWidget {
@@ -20,21 +21,12 @@ class MyNavigationBar extends StatelessWidget {
           children: <Widget>[
             IconButton(
               icon: const Icon(
-                Icons.home,
+                Icons.home_rounded,
                 color: Colors.white,
                 size: 30,
               ),
               onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation, secondaryAnimation) =>
-                        HomePage(),
-                    transitionDuration: Duration.zero, // No animation
-                    reverseTransitionDuration:
-                        Duration.zero, // No reverse animation
-                  ),
-                );
+                CustomNavigator.navigateWithNoAnimation(context, HomePage());
               },
             ),
             IconButton(
@@ -44,35 +36,18 @@ class MyNavigationBar extends StatelessWidget {
                 size: 30,
               ),
               onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation, secondaryAnimation) =>
-                        FriendFinderPage(),
-                    transitionDuration: Duration.zero, // No animation
-                    reverseTransitionDuration:
-                        Duration.zero, // No reverse animation
-                  ),
-                );
+                CustomNavigator.navigateWithNoAnimation(
+                    context, FriendFinderPage());
               },
             ),
             IconButton(
               icon: const Icon(
-                Icons.person_pin,
+                Icons.wechat_rounded,
                 color: Colors.white,
                 size: 30,
               ),
               onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation, secondaryAnimation) =>
-                        ProfilePage(),
-                    transitionDuration: Duration.zero, // No animation
-                    reverseTransitionDuration:
-                        Duration.zero, // No reverse animation
-                  ),
-                );
+                CustomNavigator.navigateWithNoAnimation(context, FriendsPage());
               },
             ),
             IconButton(
@@ -82,35 +57,18 @@ class MyNavigationBar extends StatelessWidget {
                 size: 30,
               ),
               onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation, secondaryAnimation) =>
-                        CategoryScreen(),
-                    transitionDuration: Duration.zero, // No animation
-                    reverseTransitionDuration:
-                        Duration.zero, // No reverse animation
-                  ),
-                );
+                CustomNavigator.navigateWithNoAnimation(
+                    context, CategoryScreen());
               },
             ),
             IconButton(
               icon: const Icon(
-                Icons.settings,
+                Icons.person_pin_rounded,
                 color: Colors.white,
                 size: 30,
               ),
               onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation, secondaryAnimation) =>
-                        SettingsPage(),
-                    transitionDuration: Duration.zero, // No animation
-                    reverseTransitionDuration:
-                        Duration.zero, // No reverse animation
-                  ),
-                );
+                CustomNavigator.navigateWithNoAnimation(context, ProfilePage());
               },
             ),
           ],

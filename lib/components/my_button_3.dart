@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-class MyButton2 extends StatelessWidget {
+class MyButton3 extends StatelessWidget {
   final String? text;
   final void Function()? onTap;
   final Color color;
   final Icon? icon;
 
-  const MyButton2({
+  const MyButton3({
     super.key,
     this.text,
     required this.onTap,
@@ -21,17 +21,10 @@ class MyButton2 extends StatelessWidget {
       child: IntrinsicWidth(
         child: Container(
           decoration: BoxDecoration(
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 10,
-                offset: const Offset(0, 5),
-              ),
-            ],
             color: color,
             borderRadius: BorderRadius.circular(30),
           ),
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(10),
           child: Center(
             child: text != null
                 ? Text(

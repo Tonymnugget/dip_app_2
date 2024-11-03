@@ -7,6 +7,7 @@ class MyTile extends StatelessWidget {
   final Widget? leading; // New parameter for leading widget (profile image)
   final void Function()? onTap;
   final Widget? trailing;
+  final String? timestamp;
 
   const MyTile({
     super.key,
@@ -16,6 +17,7 @@ class MyTile extends StatelessWidget {
     this.imageUrl,
     this.leading,
     this.trailing,
+    this.timestamp,
   });
 
   @override
@@ -65,8 +67,21 @@ class MyTile extends StatelessWidget {
               ),
             ),
 
-            // Trailing widget (optional)
-            if (trailing != null) trailing!,
+            // Column for timestamp and trailing icon
+            if (timestamp != null || trailing != null)
+              Column(
+                children: [
+                  if (timestamp != null)
+                    Text(
+                      timestamp!,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  if (trailing != null) trailing!,
+                ],
+              ),
           ],
         ),
       ),

@@ -17,6 +17,8 @@ class UserDetailsPage extends StatefulWidget {
 class _UserDetailsPageState extends State<UserDetailsPage> {
   // state to track friend request status
   bool isFriendRequestSent = false;
+  bool isAlreadyFriend = false;
+  bool isUserBlocked = false;
   final FirestoreService firestoreService =
       FirestoreService(); // Instance of FirestoreService
   final AuthService authService = AuthService();
@@ -25,6 +27,8 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
   void initState() {
     super.initState();
     _checkIfFriendRequestSent();
+    _checkIfAlreadyFriends();
+    _checkIfUserBlocked();
   }
 
   // Check if a friend request has already been sent
@@ -33,6 +37,26 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
     final isSent = await firestoreService.isFriendRequestSent(userId);
     setState(() {
       isFriendRequestSent = isSent;
+    });
+  }
+
+  // Check if the current user is already friends with the user in userData
+  Future<void> _checkIfAlreadyFriends() async {
+    final currentUserID = authService.getCurrentUser()!.uid;
+    final userId = widget.userData['uid'];
+    final isFriend = await firestoreService.isFriend(currentUserID, userId);
+    setState(() {
+      isAlreadyFriend = isFriend;
+    });
+  }
+
+  // Check if the user is currently blocked
+  Future<void> _checkIfUserBlocked() async {
+    final userId = widget.userData['uid'];
+    final blockedUids = await firestoreService.getBlockedUidsFromFirebase();
+
+    setState(() {
+      isUserBlocked = blockedUids.contains(userId);
     });
   }
 
@@ -66,13 +90,41 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
     }
   }
 
+  // Function to block the user
+  Future<void> blockUser() async {
+    final userId = widget.userData['uid'];
+    try {
+      await firestoreService.blockUserInFirebase(userId);
+      setState(() {
+        isUserBlocked = true;
+      });
+      print('User ${widget.userData['name']} has been blocked');
+    } catch (e) {
+      print('Error blocking user: $e');
+    }
+  }
+
+  // Function to unblock the user
+  Future<void> unblockUser() async {
+    final userId = widget.userData['uid'];
+    try {
+      await firestoreService.unblockUserInFirebase(userId);
+      setState(() {
+        isUserBlocked = false;
+      });
+      print('User ${widget.userData['name']} has been unblocked');
+    } catch (e) {
+      print('Error unblocking user: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: Text(
-          'Select Filters',
+          widget.userData['name'],
           style: TextStyle(
             fontFamily: 'Poppins',
             fontWeight: FontWeight.bold,
@@ -217,14 +269,21 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
               ),
             ),
             const SizedBox(height: 10),
-            MyButton2(
-                onTap: isFriendRequestSent
-                    ? cancelFriendRequest
-                    : sendFriendRequest,
-                color: isFriendRequestSent ? Colors.red : Colors.green,
-                text: isFriendRequestSent
-                    ? 'Cancel Friend Request'
-                    : 'Send Friend Request'),
+            if (!isAlreadyFriend)
+              MyButton2(
+                  onTap: isFriendRequestSent
+                      ? cancelFriendRequest
+                      : sendFriendRequest,
+                  color: isFriendRequestSent ? Colors.red : Colors.green,
+                  text: isFriendRequestSent
+                      ? 'Cancel Friend Request'
+                      : 'Send Friend Request'),
+            if (isAlreadyFriend)
+              MyButton2(
+                onTap: isUserBlocked ? unblockUser : blockUser,
+                color: isUserBlocked ? Colors.red : Colors.white,
+                text: isUserBlocked ? 'Unblock User' : 'Block User',
+              ),
           ],
         ),
       ),
