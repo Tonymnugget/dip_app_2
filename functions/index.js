@@ -19,67 +19,63 @@ const { getMessaging } = require("firebase-admin/messaging");
 initializeApp();
 
 exports.sendMessageNotification = onDocumentCreated(
-   {
-    region: 'asia-northeast1',
-    document: "chat_rooms/{chatRoomId}/messages/{messageId}",
-   }, 
-   
-    async (event) => {
-        try {
-            const messageSnapshot = event.data; // DocumentSnapshot
-            const messageData = messageSnapshot.data(); // Get the data
+    {
+      region: 'asia-northeast1',
+      document: "chat_rooms/{chatRoomId}/messages/{messageId}",
+    }, async (event) => {
+        
+  try {
+    const messageSnapshot = event.data; // DocumentSnapshot
+    const messageData = messageSnapshot.data(); // Get the data
 
-            // Log message data for debugging
-            console.log(`Message Data: ${JSON.stringify(messageData)}`);
+    // Log message data for debugging
+    console.log(`Message Data: ${JSON.stringify(messageData)}`);
 
-            const receiverId = messageData.receiverID;
-            const senderName = messageData.senderName;
-            const messageText = messageData.message;
+    const receiverId = messageData.receiverID;
+    const senderName = messageData.senderName;
+    const messageText = messageData.message;
 
-            // Validate required fields
-            if (!receiverId || !senderName || !messageText) {
-                console.error('Missing required message fields');
-                return;
-            }
+    // Validate required fields
+    if (!receiverId || !senderName || !messageText) {
+      console.error('Missing required message fields');
+      return;
+    }
 
-            const firestore = getFirestore();
-            const messaging = getMessaging();
+    const firestore = getFirestore();
+    const messaging = getMessaging();
 
-            // Get the receiver's FCM token
-            const receiverDoc = await firestore.collection("users").doc(receiverId).get();
+    // Get the receiver's FCM token
+    const receiverDoc = await firestore.collection("users").doc(receiverId).get();
 
-            if (!receiverDoc.exists) {
-                console.error(`No user found with ID ${receiverId}`);
-                return;
-            }
+    if (!receiverDoc.exists) {
+      console.error(`No user found with ID ${receiverId}`);
+      return;
+    }
 
-            const receiverData = receiverDoc.data();
-            const fcmToken = receiverData.fcmToken;
+    const receiverData = receiverDoc.data();
+    const fcmToken = receiverData.fcmToken;
 
-            if (!fcmToken) {
-                console.error(`No FCM token for user with ID ${receiverId}`);
-                return;
-            }
+    if (!fcmToken) {
+      console.error(`No FCM token for user with ID ${receiverId}`);
+      return;
+    }
 
-            // Prepare the message payload
-            const message = {
-                notification: {
-                title: `New message from ${senderName}`,
-                body: messageText,
-                clickAction: "FLUTTER_NOTIFICATION_CLICK",
-                },
-            token: fcmToken,
-            };
+    // Prepare the message payload without 'clickAction'
+    const message = {
+      notification: {
+        title: `New message from ${senderName}`,
+        body: messageText,
+      },
+      token: fcmToken,
+    };
 
-            // Send the notification
-            const response = await messaging.send(message);
-            console.log(`Notification sent successfully: ${response}`);
-        } catch (error) {
-            console.error("Error sending notification:", error);
-        }
+    // Send the notification
+    const response = await messaging.send(message);
+    console.log(`Notification sent successfully: ${response}`);
+  } catch (error) {
+    console.error("Error sending notification:", error);
+  }
 });
-
-
 
 // Create and deploy your first functions
 // https://firebase.google.com/docs/functions/get-started

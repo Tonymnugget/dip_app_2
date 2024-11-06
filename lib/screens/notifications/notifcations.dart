@@ -2,10 +2,10 @@ import 'package:dip_app_2/components/my_navigationbar.dart';
 import 'package:dip_app_2/components/my_tile.dart';
 import 'package:dip_app_2/helper/navigator_animation.dart';
 import 'package:dip_app_2/screens/notifications/friend_request.dart';
-import 'package:dip_app_2/services/database/firestore_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
@@ -15,17 +15,15 @@ class NotificationPage extends StatefulWidget {
 }
 
 class _NotificationPageState extends State<NotificationPage> {
-  final FirestoreService firestoreService = FirestoreService();
   final User? currentUser = FirebaseAuth.instance.currentUser;
-
-  // List to hold names and imageUrls of users who sent friend requests
-  List<Map<String, String?>> friendRequestDetails =
-      []; // Holds both name and imageUrl
+  List<Map<String, String?>> friendRequestDetails = [];
+  List<Map<String, dynamic>> friendHistory = [];
 
   @override
   void initState() {
     super.initState();
     _fetchFriendRequests();
+    _fetchFriendHistory();
   }
 
   Future<void> _fetchFriendRequests() async {
@@ -36,7 +34,7 @@ class _NotificationPageState extends State<NotificationPage> {
           .collection('users')
           .doc(currentUser!.uid)
           .collection('receivedRequests')
-          .limit(2) // Limit to first 2 requests
+          .limit(2)
           .get();
 
       List<Map<String, String?>> requestDetails = [];
@@ -44,19 +42,16 @@ class _NotificationPageState extends State<NotificationPage> {
       for (var doc in receivedRequestsSnapshot.docs) {
         String senderId = doc['senderId'];
 
-        // Fetch the sender's details
         DocumentSnapshot senderSnapshot = await FirebaseFirestore.instance
             .collection('users')
             .doc(senderId)
             .get();
 
         if (senderSnapshot.exists) {
-          // Get both the sender's name and imageUrl
           String? senderName = senderSnapshot['name'];
           String? senderImageUrl = senderSnapshot['imageUrl'];
 
           if (senderName != null) {
-            // Add both name and imageUrl to the list as a map
             requestDetails.add({
               'name': senderName,
               'imageUrl': senderImageUrl,
@@ -66,16 +61,60 @@ class _NotificationPageState extends State<NotificationPage> {
       }
 
       setState(() {
-        friendRequestDetails =
-            requestDetails; // Store the names and imageUrls in the state
+        friendRequestDetails = requestDetails;
       });
     } catch (e) {
       print('Error fetching friend requests: $e');
     }
   }
 
+  Future<void> _fetchFriendHistory() async {
+    if (currentUser == null) return;
+
+    try {
+      QuerySnapshot friendsSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser!.uid)
+          .collection('friends')
+          .get();
+
+      List<Map<String, dynamic>> history = [];
+
+      for (var doc in friendsSnapshot.docs) {
+        String friendId = doc.id;
+        Timestamp timestamp = doc['timestamp'];
+
+        DocumentSnapshot friendSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(friendId)
+            .get();
+
+        if (friendSnapshot.exists) {
+          String friendName = friendSnapshot['name'];
+          String? friendImageUrl = friendSnapshot['imageUrl'];
+          DateTime date = timestamp.toDate();
+
+          history.add({
+            'name': friendName,
+            'imageUrl': friendImageUrl,
+            'date': date,
+          });
+        }
+      }
+
+      setState(() {
+        friendHistory = history;
+      });
+    } catch (e) {
+      print('Error fetching friend history: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    Map<String, List<Map<String, dynamic>>> categorizedHistory =
+        _categorizeHistory(friendHistory);
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
@@ -94,20 +133,16 @@ class _NotificationPageState extends State<NotificationPage> {
         ),
       ),
       bottomNavigationBar: MyNavigationBar(),
-      body: Column(
+      body: ListView(
         children: [
-          // Friend Request tile
+          // Friend Request tile at the top
           MyTile(
             text: 'Friend Requests',
             subtitle: friendRequestDetails.isNotEmpty
-                ? friendRequestDetails
-                    .map((e) => e['name'])
-                    .join(', ') // Display the first few names
-                : 'Accept or decline requests', // Default if no requests
-            leading:
-                _buildProfileImages(), // Show stacked or single profile image(s)
+                ? friendRequestDetails.map((e) => e['name']).join(', ')
+                : 'Accept or decline requests',
+            leading: _buildProfileImages(),
             onTap: () {
-              // Go to friend request page when tile is tapped
               Navigator.push(
                 context,
                 CustomNavigator.createSlideRoute(FriendRequestPage()),
@@ -115,39 +150,108 @@ class _NotificationPageState extends State<NotificationPage> {
             },
             trailing: const Icon(Icons.arrow_forward_ios),
           ),
+          // Friend history sections
+          _buildSection('Today', categorizedHistory['Today'] ?? []),
+          _buildSection('Last 7 days', categorizedHistory['Last 7 days'] ?? []),
+          _buildSection(
+              'Last 30 days', categorizedHistory['Last 30 days'] ?? []),
+          _buildSection('Older', categorizedHistory['Older'] ?? []),
         ],
       ),
     );
   }
 
+  Map<String, List<Map<String, dynamic>>> _categorizeHistory(
+      List<Map<String, dynamic>> history) {
+    Map<String, List<Map<String, dynamic>>> categorized = {
+      'Today': [],
+      'Last 7 days': [],
+      'Last 30 days': [],
+      'Older': [],
+    };
+
+    DateTime now = DateTime.now();
+    DateTime todayStart = DateTime(now.year, now.month, now.day);
+    DateTime weekAgo = now.subtract(Duration(days: 7));
+    DateTime monthAgo = now.subtract(Duration(days: 30));
+
+    for (var entry in history) {
+      DateTime date = entry['date'];
+
+      if (date.isAfter(todayStart)) {
+        categorized['Today']!.add(entry);
+      } else if (date.isAfter(weekAgo)) {
+        categorized['Last 7 days']!.add(entry);
+      } else if (date.isAfter(monthAgo)) {
+        categorized['Last 30 days']!.add(entry);
+      } else {
+        categorized['Older']!.add(entry);
+      }
+    }
+
+    return categorized;
+  }
+
+  Widget _buildSection(String title, List<Map<String, dynamic>> entries) {
+    if (entries.isEmpty) return SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text(
+            title,
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        ...entries.map((entry) => ListTile(
+              leading: CircleAvatar(
+                backgroundImage: entry['imageUrl'] != null
+                    ? NetworkImage(entry['imageUrl'])
+                    : null,
+                backgroundColor: Colors.grey,
+                child: entry['imageUrl'] == null
+                    ? Icon(Icons.person, color: Colors.white)
+                    : null,
+              ),
+              title: Text(entry['name']),
+              subtitle: Text(
+                'You became friends on ${DateFormat('MMM dd, yyyy').format(entry['date'])}',
+              ),
+            )),
+      ],
+    );
+  }
+
   Widget _buildProfileImages() {
     if (friendRequestDetails.isEmpty) {
-      // Handle the case when there are no friend requests
       return CircleAvatar(
         radius: 20,
         backgroundColor: Colors.grey,
         child: Icon(Icons.person_add_sharp, size: 20, color: Colors.white),
       );
     } else if (friendRequestDetails.length == 1) {
-      // Show a single profile picture if there's only one request
       return CircleAvatar(
         radius: 20,
-        backgroundColor: Colors.grey,
         backgroundImage: friendRequestDetails[0]['imageUrl'] != null
             ? NetworkImage(friendRequestDetails[0]['imageUrl']!)
             : null,
+        backgroundColor: Colors.grey,
         child: friendRequestDetails[0]['imageUrl'] == null
             ? Icon(Icons.person, size: 20, color: Colors.white)
             : null,
       );
     } else {
-      // Stack the first two profile pictures if there are multiple requests
       return SizedBox(
         width: 40,
         height: 40,
         child: Stack(
           children: [
-            // First user's image
             Positioned(
               left: 0,
               child: CircleAvatar(
@@ -161,7 +265,6 @@ class _NotificationPageState extends State<NotificationPage> {
                     : null,
               ),
             ),
-            // Second user's image
             Positioned(
               right: 0,
               child: CircleAvatar(

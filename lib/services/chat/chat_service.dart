@@ -62,7 +62,7 @@ class ChatService {
         senderEmail: currentUserEmail,
         receiverID: receiverID,
         message: message,
-        senderName: senderName, // Add senderName to Message
+        senderName: senderName,
         timestamp: timestamp,
         isUnread: true,
       );
