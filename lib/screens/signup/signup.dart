@@ -4,7 +4,6 @@ import 'package:dip_app_2/services/auth/auth_service.dart';
 import 'package:flutter/material.dart';
 
 class SignupPage extends StatelessWidget {
-
   //text controllers
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -15,20 +14,20 @@ class SignupPage extends StatelessWidget {
 
   SignupPage({super.key, required this.onTap});
 
-  // register method 
+  // register method
   void register(BuildContext context) {
     // get auth service
     final authService = AuthService();
 
     try {
       authService.signup(
-        _nameController.text, 
-        _emailController.text, 
+        _nameController.text,
+        _emailController.text,
         _passwordController.text,
       );
     } catch (e) {
       showDialog(
-        context: context, 
+        context: context,
         builder: (context) => AlertDialog(
           title: Text(e.toString()),
         ),
@@ -47,34 +46,34 @@ class SignupPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // logo
-              Icon(
-                Icons.person,
-                size: 80,
-                color: Theme.of(context).colorScheme.inversePrimary,
+              Image.asset(
+                'assets/images/orbitlogo.png',
+                height: 120,
+                width: 120,
               ),
-              
+
               const SizedBox(height: 25),
-              
+
               // app name
               const Text(
-                "A P P N A M E",
-                style:TextStyle(fontSize: 20),
+                "O R B I T",
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
-              
-              const SizedBox(height: 50),
-          
+
+              const SizedBox(height: 25),
+
               // username textfield
               MyTextField(
-                hintText: "Name", 
-                obscureText: false, 
+                hintText: "Name:",
+                obscureText: false,
                 controller: _nameController,
               ),
 
               const SizedBox(height: 10),
               // email textfield
               MyTextField(
-                hintText: "Email username@e.ntu.edu.sg", 
-                obscureText: false, 
+                hintText: "Email: username@e.ntu.edu.sg",
+                obscureText: false,
                 controller: _emailController,
               ),
 
@@ -82,14 +81,14 @@ class SignupPage extends StatelessWidget {
 
               // password textfield
               MyTextField(
-                hintText: "Password", 
-                obscureText: true, 
+                hintText: "Password:",
+                obscureText: true,
                 controller: _passwordController,
               ),
 
               const SizedBox(height: 25),
 
-              // sign up button 
+              // sign up button
               MyButton(
                 text: "Sign up",
                 onTap: () => register(context),
@@ -110,10 +109,10 @@ class SignupPage extends StatelessWidget {
                   GestureDetector(
                     onTap: onTap,
                     child: Text(
-                      "Sign in Here",
+                      " Sign in Here",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.inversePrimary,
+                        color: Colors.black,
                       ),
                     ),
                   ),

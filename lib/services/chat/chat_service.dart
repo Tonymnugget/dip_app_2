@@ -45,7 +45,8 @@ class ChatService {
   }
 
   // send message
-  Future<void> sendMessage(String receiverID, message) async {
+  Future<void> sendMessage(
+      String receiverID, String message, String senderName) async {
     try {
       // get current user info
       final String currentUserID = _auth.currentUser!.uid;
@@ -61,13 +62,14 @@ class ChatService {
         senderEmail: currentUserEmail,
         receiverID: receiverID,
         message: message,
+        senderName: senderName, // Add senderName to Message
         timestamp: timestamp,
         isUnread: true,
       );
 
       // construct chat room ID for the two users (sorted to ensure uniqueness)
       List<String> ids = [currentUserID, receiverID];
-      ids.sort(); // sort the ids (this ensure the chatroomID is the same for any 2 people)
+      ids.sort();
       String chatRoomID = ids.join('_');
 
       // add new message to database
@@ -78,7 +80,6 @@ class ChatService {
           .add(newMessage.toMap());
     } catch (e) {
       print('Failed to send message or update chat frequency: $e');
-      // Optionally, you can show a snackbar or alert dialog here to inform the user of the error.
     }
   }
 

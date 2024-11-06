@@ -3,11 +3,18 @@ import 'package:dip_app_2/screens/food_finder/canteens.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class CategoryScreen extends StatelessWidget {
+class CategoryScreen extends StatefulWidget {
   const CategoryScreen({super.key});
 
   @override
+  State<CategoryScreen> createState() => _CategoryScreenState();
+}
+
+class _CategoryScreenState extends State<CategoryScreen> {
+  @override
   Widget build(BuildContext context) {
+    final height = MediaQuery.of(context).size.height;
+    final width = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
@@ -32,46 +39,76 @@ class CategoryScreen extends StatelessWidget {
           if (!snapshot.hasData) return CircularProgressIndicator();
           var categories = snapshot.data!.docs;
 
-          return ListView.builder(
-            itemCount: categories.length,
-            itemBuilder: (context, index) {
-              var category = categories[index];
-              Map<String, dynamic>? categoryData =
-                  category.data() as Map<String, dynamic>?;
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Expanded(
+                child: GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 5 / 4.2,
+                      crossAxisSpacing: 0,
+                      mainAxisSpacing: 20),
+                  itemCount: categories.length,
+                  itemBuilder: (context, index) {
+                    var category = categories[index];
+                    Map<String, dynamic>? categoryData =
+                        category.data() as Map<String, dynamic>?;
 
-              // Check if the imageUrl field exists in the category data
-              String? imageUrl =
-                  categoryData != null && categoryData.containsKey('imageUrl')
-                      ? categoryData['imageUrl']
-                      : null;
+                    // Retrieve the image URL from the category document
+                    String? imageUrl = categoryData?['imageURL'];
 
-              // String categoryId = category.id;
-              return ListTile(
-                title: Text(category.id),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Conditionally display image if the URL is not null or empty
-                    imageUrl != null && imageUrl.isNotEmpty
-                        ? Image.network(imageUrl, height: 100)
-                        : Container(
-                            height: 100,
-                            color: Colors.grey,
-                            child: Center(child: Text("No Image Available")),
-                          ), // Placeholder for missing image
-                  ],
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                CanteenScreen(categoryId: category.id),
+                          ),
+                        );
+                      },
+                      child: Stack(
+                        children: [
+                          // Display image from Firestore if URL exists, otherwise use a placeholder
+                          imageUrl != null && imageUrl.isNotEmpty
+                              ? Image.network(
+                                  imageUrl,
+                                  fit: BoxFit.cover,
+                                  width: width,
+                                  height: height,
+                                )
+                              : Container(
+                                  color: Colors.grey[300],
+                                  width: width,
+                                  height: height,
+                                  child: Icon(Icons.image_not_supported),
+                                ),
+                          // Display category name overlay
+                          Padding(
+                            padding: EdgeInsets.only(top: height * 0.07),
+                            child: Center(
+                              child: Text(
+                                category.id.toString().toUpperCase(),
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: height * 0.03,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          CanteenScreen(categoryId: category.id),
-                    ),
-                  );
-                },
-              );
-            },
+              ),
+              SizedBox(
+                height: height * 0.02,
+              )
+            ],
           );
         },
       ),

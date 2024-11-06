@@ -5,6 +5,8 @@ import 'package:dip_app_2/helper/navigator_animation.dart';
 import 'package:dip_app_2/screens/matching/user_details.dart';
 import 'package:dip_app_2/services/auth/auth_service.dart';
 import 'package:dip_app_2/services/chat/chat_service.dart';
+import 'package:dip_app_2/services/database/firestore_service.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -25,6 +27,20 @@ class ChatPage extends StatefulWidget {
   State<ChatPage> createState() => _ChatPageState();
 }
 
+// to UserDetailsPage
+void _navigateToUserDetails(
+    BuildContext context, Map<String, dynamic> userData) {
+  Navigator.push(
+    context,
+    CustomNavigator.createSlideRoute(UserDetailsPage(userData: userData)),
+  ).then((shouldRefresh) {
+    if (shouldRefresh == true) {
+      Navigator.pop(context,
+          true); // Pass the flag back to FriendsPage or FriendFinderPage
+    }
+  });
+}
+
 class _ChatPageState extends State<ChatPage> {
   // text controller
   final TextEditingController _messageController = TextEditingController();
@@ -32,13 +48,40 @@ class _ChatPageState extends State<ChatPage> {
   // chat & auth services
   final ChatService chatService = ChatService();
   final AuthService authService = AuthService();
+  final FirestoreService firestoreService = FirestoreService();
 
   // for textfield focus => if a lot of text, next message send/receive auto scroll
   FocusNode myFocusNode = FocusNode();
 
+  // helper function for requesting permission
+  void setupPushNotifications() async {
+    // get instance of FirebaseMessaging
+    final fcm = FirebaseMessaging.instance;
+
+    // called first, ask the user for permission to receive and handle push notifications
+    // returns a future can be fine tune to which type to receive
+    await fcm.requestPermission();
+
+    // yields the address of the device on which the app is running
+    // necessary to target specific devices for notifcaitons
+    final token = await fcm.getToken();
+
+    if (token != null) {
+      final currentUserId = authService.getCurrentUser()!.uid;
+
+      // save the token in firestore
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUserId)
+          .update({'fcmToken': token});
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+
+    setupPushNotifications();
 
     // add listener to focus node
     myFocusNode.addListener(() {
@@ -77,19 +120,30 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  // send message
   void sendMessage() async {
-    // if there is something inside the textfield
+    // Fetch the sender's name
+    final senderName = await firestoreService.getCurrentUserName();
+
     if (_messageController.text.isNotEmpty) {
-      // send the message
-      await chatService.sendMessage(widget.receiverID, _messageController.text);
+      try {
+        // Check if senderName is not null
+        if (senderName.isNotEmpty) {
+          await chatService.sendMessage(
+            widget.receiverID,
+            _messageController.text,
+            senderName,
+          );
+          _messageController
+              .clear(); // Clear the message controller after successful send
+        } else {
+          print('Error: senderName is null or empty');
+        }
+      } catch (e) {
+        print('Error sending message: $e');
+      }
 
-      // clear text controller after sending
-      _messageController.clear();
+      scrollDown(); // Auto-scroll to keep latest message in view
     }
-
-    // Everytime a message is sent, auto scroll so keyboard does not cover message
-    scrollDown();
   }
 
   @override
@@ -129,11 +183,7 @@ class _ChatPageState extends State<ChatPage> {
                       userSnapshot.data() as Map<String, dynamic>;
 
                   // Navigate to UserDetailsPage with the userData
-                  Navigator.push(
-                    context,
-                    CustomNavigator.createSlideRoute(
-                        UserDetailsPage(userData: userData)),
-                  );
+                  _navigateToUserDetails(context, userData);
                 }
               },
             ),
@@ -305,12 +355,14 @@ class _ChatPageState extends State<ChatPage> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.secondaryFixed,
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: TextField(
                   decoration: InputDecoration(
                     hintText: "Message...",
+                    hintStyle: TextStyle(
+                        color: Theme.of(context).colorScheme.secondaryFixedDim),
                     border: InputBorder.none,
                   ),
                   minLines: 1,
@@ -340,265 +392,3 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 }
-
-/*
-
-  import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dip_app_2/components/chat_bubble.dart';
-import 'package:dip_app_2/components/my_profile_button.dart';
-import 'package:dip_app_2/components/my_textfield.dart';
-import 'package:dip_app_2/services/auth/auth_service.dart';
-import 'package:dip_app_2/services/chat/chat_service.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-
-class ChatPage extends StatefulWidget {
-  final String receiverEmail;
-  final String receiverID;
-  final String receiverName;
-  final String profileImageUrl;
-
-  const ChatPage(
-      {super.key,
-      required this.receiverEmail,
-      required this.receiverID,
-      required this.receiverName,
-      required this.profileImageUrl});
-
-  @override
-  State<ChatPage> createState() => _ChatPageState();
-}
-
-class _ChatPageState extends State<ChatPage> {
-  // text controller
-  final TextEditingController _messageController = TextEditingController();
-
-  // chat & auth services
-  final ChatService _chatService = ChatService();
-  final AuthService _authService = AuthService();
-
-  // for textfield focus => if a lot of text, next message send/receive auto scroll
-  FocusNode myFocusNode = FocusNode();
-
-  @override
-  void initState() {
-    super.initState();
-
-    // add listener to focus node
-    myFocusNode.addListener(() {
-      if (myFocusNode.hasFocus) {
-        // if we are in focus, cause a delay so that the keyboard has time to show up
-        // then the amopunt of remaining space will be calculated,
-        // then scroll down
-        Future.delayed(
-          const Duration(milliseconds: 500),
-          () => scrollDown(),
-        );
-      }
-    });
-
-    // wait for listview to be built, then scroll to bottom
-    Future.delayed(
-      const Duration(milliseconds: 500),
-      () => scrollDown(),
-    );
-  }
-
-  @override
-  void dispose() {
-    myFocusNode.dispose();
-    _messageController.dispose();
-    super.dispose();
-  }
-
-  // scroll controller
-  final ScrollController _scrollController = ScrollController();
-  void scrollDown() {
-    _scrollController.animateTo(
-      _scrollController.position.maxScrollExtent,
-      duration: const Duration(seconds: 1),
-      curve: Curves.fastOutSlowIn,
-    );
-  }
-
-  // send message
-  void sendMessage() async {
-    // if there is something inside the textfield
-    if (_messageController.text.isNotEmpty) {
-      // send the message
-      await _chatService.sendMessage(
-          widget.receiverID, _messageController.text);
-
-      // clear text controller after sending
-      _messageController.clear();
-    }
-
-    // Everytime a message is sent, auto scroll so keyboard does not cover message
-    scrollDown();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
-        title: Text(
-          widget.receiverName,
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.inversePrimary,
-          ),
-        ),
-        backgroundColor: Colors.transparent,
-        foregroundColor: Colors.grey,
-        elevation: 0,
-        actions: [
-          MyProfileButton(
-            profileImageUrl: widget.profileImageUrl,
-            onTap: () {
-              print("profile pic tapped");
-            },
-          )
-        ],
-      ),
-      body: Column(
-        children: [
-          // display all messages
-          Expanded(
-            child: _buildMessageList(),
-          ),
-
-          // user input
-          _buildUserInput(),
-        ],
-      ),
-    );
-  }
-
-  // build message list
-  Widget _buildMessageList() {
-    String senderID = _authService.getCurrentUser()!.uid;
-    return StreamBuilder(
-      stream: _chatService.getMessage(widget.receiverID, senderID),
-      builder: (context, snapshot) {
-        // errors
-        if (snapshot.hasError) {
-          return const Text("Error");
-        }
-
-        // loading
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Text("Loading...");
-        }
-
-        // retrieve this messages and determine the last message
-        var messages = snapshot.data!.docs;
-        QueryDocumentSnapshot? lastSenderMessage;
-        QueryDocumentSnapshot? lastReceiverMessage;
-
-        // Identify the last message sent by the sender and receiver
-        for (var message in messages) {
-          Map<String, dynamic> data = message.data() as Map<String, dynamic>;
-          if (data['senderID'] == senderID) {
-            lastSenderMessage = message;
-          } else {
-            lastReceiverMessage = message;
-          }
-        }
-
-        // return list view
-        return ListView.builder(
-          controller: _scrollController,
-          itemCount: messages.length,
-          itemBuilder: (context, index) {
-            var isLastSenderMessage =
-                messages[index].id == lastSenderMessage?.id;
-            var isLastReceiverMessage =
-                messages[index].id == lastReceiverMessage?.id;
-            return _buildMessageItem(
-                messages[index], isLastSenderMessage, isLastReceiverMessage);
-          },
-        );
-      },
-    );
-  }
-
-  // build message item
-  Widget _buildMessageItem(QueryDocumentSnapshot doc, bool isLastSenderMessage,
-      bool isLastReceiverMessage) {
-    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-
-    // is current user
-    bool isCurrentUser = data['senderID'] == _authService.getCurrentUser()!.uid;
-
-    // align message to the right if sender is the current user, otherwise left
-    var alignment =
-        isCurrentUser ? Alignment.centerRight : Alignment.centerLeft;
-
-    // convert the timestamp to readable format
-    Timestamp timestamp = data['timestamp'] ?? Timestamp.now();
-    DateTime dateTime = timestamp.toDate();
-    String formattedTime = DateFormat('hh:mm a').format(dateTime);
-
-    return Container(
-      alignment: alignment,
-      margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
-      child: Column(
-        crossAxisAlignment:
-            isCurrentUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-        children: [
-          ChatBubble(
-            message: data["message"],
-            isCurrentUser: isCurrentUser,
-          ),
-
-          // Display the timestamp only for the last message
-          if (isLastSenderMessage || isLastReceiverMessage)
-            Padding(
-              padding: const EdgeInsets.only(top: 5),
-              child: Text(
-                formattedTime,
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  // build message input
-  Widget _buildUserInput() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 50.0),
-      child: Row(
-        children: [
-          // textfield should take up most of the space
-          Expanded(
-            child: MyTextField(
-                focusNode: myFocusNode,
-                hintText: "Type a message",
-                obscureText: false,
-                controller: _messageController),
-          ),
-
-          // send button
-          // TODO: change this to frontend design
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.green,
-              shape: BoxShape.circle,
-            ),
-            child: IconButton(
-              onPressed: sendMessage,
-              icon: const Icon(
-                Icons.arrow_upward,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-
-*/

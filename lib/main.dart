@@ -24,7 +24,11 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(ChangeNotifierProvider(
-    create: (context) => ThemeProvider(),
+    create: (context) {
+      final themeProvider = ThemeProvider();
+      themeProvider.setInitialThemeMode(); // Set initial theme based on system
+      return themeProvider;
+    },
     child: const MyApp(),
   ));
 }
@@ -34,11 +38,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: const AuthWrapper(),
-        theme: lightMode, // Provider.of<ThemeProvider>(context).themeData
+        theme: lightMode, //Provider.of<ThemeProvider>(context).themeData
         darkTheme: darkMode,
+        themeMode: themeProvider.themeMode,
         routes: {
           '/login_or_register': (context) => const LoginOrRegister(),
           '/auth_wrapper': (context) => const AuthWrapper(),

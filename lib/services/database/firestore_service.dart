@@ -21,6 +21,22 @@ class FirestoreService {
   }
   */
 
+  // In FirestoreService
+  Future<String> getCurrentUserName() async {
+    final currentUser = authService.getCurrentUser();
+    if (currentUser != null) {
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .get();
+      if (userDoc.exists) {
+        return userDoc.data()?['name'] ??
+            'User'; // Default to 'User' if name is null
+      }
+    }
+    return 'User'; // Default to 'User' if currentUser is null or document does not exist
+  }
+
   Future<Map<String, dynamic>?> getProfileData(String uid) async {
     // Query Firestore to retrieve profile information
     final doc =

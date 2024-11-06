@@ -1,39 +1,27 @@
-import 'package:dip_app_2/theme/dark_mode.dart';
-import 'package:dip_app_2/theme/light_mode.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
-/*
+class ThemeProvider extends ChangeNotifier {
+  ThemeMode _themeMode;
 
-to change the app from dark & light mode
+  ThemeProvider() : _themeMode = ThemeMode.system; // Default to system theme
 
+  ThemeMode get themeMode => _themeMode;
 
-self note: provider is needed here, state management tool
-*/
-
-class ThemeProvider with ChangeNotifier {
-  // initially, set it as light mode
-  ThemeData _themeData = lightMode;
-
-  // get the current them
-  ThemeData get themeData => _themeData;
-
-  // is it dark mode currently?
-  bool get isDarkMode => _themeData == darkMode;
-
-  // set the theme
-  set themeData(ThemeData themeData) {
-    _themeData = themeData;
-
-    // update UI
+  void toggleTheme(bool isDarkMode) {
+    _themeMode = isDarkMode ? ThemeMode.dark : ThemeMode.light;
     notifyListeners();
   }
 
-  // toggle between dark & light modeS
-  void toggleTheme() {
-    if (_themeData == lightMode) {
-      themeData = darkMode;
-    } else {
-      themeData = lightMode;
-    }
+  void useSystemTheme() {
+    _themeMode = ThemeMode.system;
+    notifyListeners();
+  }
+
+  // Automatically set theme mode based on system brightness
+  void setInitialThemeMode() {
+    var brightness = SchedulerBinding.instance.window.platformBrightness;
+    _themeMode =
+        brightness == Brightness.dark ? ThemeMode.dark : ThemeMode.light;
   }
 }

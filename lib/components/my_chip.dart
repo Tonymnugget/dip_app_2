@@ -20,7 +20,6 @@ class MyChip extends StatelessWidget {
         style: const TextStyle(
           fontFamily: 'Poppins',
           fontSize: 12,
-          color: Colors.black,
         ),
       ),
     );

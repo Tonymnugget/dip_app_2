@@ -22,7 +22,7 @@ class FriendRequestPage extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: Text(
-          'Follow Requests',
+          'Friend Requests',
           style: TextStyle(
             fontFamily: 'Poppins',
             fontWeight: FontWeight.bold,

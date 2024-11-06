@@ -36,7 +36,7 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: Color.fromARGB(100, 202, 216, 220),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(25.0),
@@ -44,10 +44,10 @@ class LoginPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // logo
-              Icon(
-                Icons.person,
-                size: 80,
-                color: Theme.of(context).colorScheme.inversePrimary,
+              Image.asset(
+                'assets/images/orbitlogo.png',
+                height: 120,
+                width: 120,
               ),
 
               const SizedBox(height: 25),
@@ -55,10 +55,10 @@ class LoginPage extends StatelessWidget {
               // app name
               const Text(
                 "O R B I T",
-                style: TextStyle(fontSize: 20),
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
 
-              const SizedBox(height: 50),
+              const SizedBox(height: 25),
 
               // email textfield
               MyTextField(
@@ -71,7 +71,7 @@ class LoginPage extends StatelessWidget {
 
               // password textfield
               MyTextField(
-                hintText: "Password",
+                hintText: "Password:",
                 obscureText: true,
                 controller: _passwordController,
               ),
@@ -84,9 +84,7 @@ class LoginPage extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Text("Forgot Password",
-                      style: TextStyle(
-                          color: Theme.of(context).colorScheme.inversePrimary)),
+                  Text("Forgot Password"),
                 ],
               ),
 
@@ -104,19 +102,14 @@ class LoginPage extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    "Don't have an account?",
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
+                  Text("Don't have an account?"),
                   GestureDetector(
                     onTap: onTap,
                     child: Text(
-                      "Register Here",
+                      " Register Here",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.inversePrimary,
+                        color: Colors.black,
                       ),
                     ),
                   ),

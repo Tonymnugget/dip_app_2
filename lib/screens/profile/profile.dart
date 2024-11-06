@@ -1,6 +1,7 @@
 import 'package:dip_app_2/components/my_chip.dart';
 import 'package:dip_app_2/components/my_navigationbar.dart';
 import 'package:dip_app_2/helper/navigator_animation.dart';
+import 'package:dip_app_2/screens/profile/blocked.dart';
 import 'package:dip_app_2/screens/profile/profile_edit.dart';
 import 'package:dip_app_2/services/auth/auth_service.dart';
 import 'package:dip_app_2/services/database/firestore_service.dart';
@@ -215,6 +216,23 @@ class ProfilePage extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 10),
+
+                        _buildOptionButton(
+                          context,
+                          'Blocked Users',
+                          Icons.person_off_rounded,
+                          () {
+                            Navigator.push(
+                              context,
+                              CustomNavigator.createSlideRoute(
+                                BlockedUsersPage(),
+                              ),
+                            );
+                          },
+                        ),
+
+                        const SizedBox(height: 10),
+
                         _buildOptionButton(
                           context,
                           'Setting',
@@ -270,7 +288,7 @@ class ProfilePage extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            Icon(icon, size: 24),
+            Icon(icon, size: 30),
           ],
         ),
       ),

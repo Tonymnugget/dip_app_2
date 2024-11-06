@@ -5,63 +5,73 @@ import 'package:dip_app_2/services/database/firestore_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class FriendsListTile extends StatelessWidget {
+class FriendsListTile extends StatefulWidget {
   final String currentUserId;
-  final FirestoreService firestoreService = FirestoreService();
 
-  FriendsListTile({super.key, required this.currentUserId});
+  const FriendsListTile({super.key, required this.currentUserId});
+
+  @override
+  State<FriendsListTile> createState() => _FriendsListTileState();
+}
+
+class _FriendsListTileState extends State<FriendsListTile> {
+  final FirestoreService firestoreService = FirestoreService();
 
   // Method to navigate to ChatPage
   void _navigateToChatPage(BuildContext context, String friendId,
       String friendEmail, String friendName, String profileImageUrl) {
     Navigator.push(
       context,
-      CustomNavigator.createSlideRoute(
-        ChatPage(
-          receiverEmail: friendEmail,
-          receiverID: friendId,
-          receiverName: friendName,
-          profileImageUrl: profileImageUrl,
-        ),
-      ),
-    );
+      CustomNavigator.createSlideRoute(ChatPage(
+        receiverEmail: friendEmail,
+        receiverID: friendId,
+        receiverName: friendName,
+        profileImageUrl: profileImageUrl,
+      )),
+    ).then((shouldRefresh) {
+      if (shouldRefresh == true) {
+        setState(() {}); // Refresh FriendsPage or FriendFinderPage
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-      stream: FirebaseFirestore.instance
-          .collection('users')
-          .doc(currentUserId)
-          .collection('friends')
-          .snapshots(),
-      builder: (context, AsyncSnapshot<QuerySnapshot> totalFriendsSnapshot) {
-        if (!totalFriendsSnapshot.hasData) {
+    return FutureBuilder<List<String>>(
+      future: firestoreService.getBlockedUidsFromFirebase(),
+      builder: (context, blockedUsersSnapshot) {
+        if (blockedUsersSnapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
+        if (blockedUsersSnapshot.hasError) {
+          return Center(child: Text('Error: ${blockedUsersSnapshot.error}'));
+        }
 
-        // Total number of friends (for the counter)
-        final totalFriendsCount = totalFriendsSnapshot.data!.docs.length;
+        final List<String> blockedUserIds = blockedUsersSnapshot.data ?? [];
 
         return StreamBuilder(
           stream: FirebaseFirestore.instance
               .collection('users')
-              .doc(currentUserId)
+              .doc(widget.currentUserId)
               .collection('friends')
               .orderBy('chatFrequency', descending: true)
-              .limit(4)
               .snapshots(),
-          builder: (context, AsyncSnapshot<QuerySnapshot> friendSnapshot) {
-            if (!friendSnapshot.hasData) {
+          builder: (context, AsyncSnapshot<QuerySnapshot> friendsSnapshot) {
+            if (!friendsSnapshot.hasData) {
               return const Center(child: CircularProgressIndicator());
             }
 
-            final friends = friendSnapshot.data!.docs;
+            // Filter out blocked users and apply a limit of 4 after filtering
+            final unblockedFriendsData = friendsSnapshot.data!.docs
+                .where((doc) => !blockedUserIds.contains(doc['friendId']))
+                .toList();
 
-            if (friends.isEmpty) {
+            // If fewer than 4 friends remain after blocking, backfill with additional friends
+            final friendsData = unblockedFriendsData.take(4).toList();
+
+            if (friendsData.isEmpty) {
               return const Center(
-                child: // Encouraging message
-                    Text(
+                child: Text(
                   "It looks a bit quiet here... Tap 'Select Filters' to start exploring and make new friends!",
                   textAlign: TextAlign.center,
                   style: TextStyle(
@@ -73,16 +83,14 @@ class FriendsListTile extends StatelessWidget {
               );
             }
 
-            // Get all friend IDs
+            // Extract friend IDs
             final List<String> friendIds =
-                friends.map((doc) => doc['friendId'] as String).toList();
+                friendsData.map((doc) => doc['friendId'] as String).toList();
 
-            // Batch request for all friends' data in one go using whereIn
-            return FutureBuilder(
+            return FutureBuilder<QuerySnapshot>(
               future: FirebaseFirestore.instance
                   .collection('users')
-                  .where(FieldPath.documentId,
-                      whereIn: friendIds) // Batch fetch friends' data
+                  .where(FieldPath.documentId, whereIn: friendIds)
                   .get(),
               builder: (context, AsyncSnapshot<QuerySnapshot> usersSnapshot) {
                 if (!usersSnapshot.hasData) {
@@ -94,9 +102,8 @@ class FriendsListTile extends StatelessWidget {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Display "Friends" label with total friends count
                     Text(
-                      'Friends($totalFriendsCount)',
+                      'Friends(${friendIds.length})', // Show actual friend count
                       style: TextStyle(
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.bold,
@@ -104,14 +111,15 @@ class FriendsListTile extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 5),
-                    // Container to hold the friends' avatars and names
                     InkWell(
                       onTap: () {
-                        // Naviagte to FriendsPage when the container is tapped
                         Navigator.push(
                           context,
                           CustomNavigator.createSlideRoute(FriendsPage()),
-                        );
+                        ).then((_) {
+                          // Trigger a rebuild after coming back from FriendsPage
+                          setState(() {});
+                        });
                       },
                       child: Container(
                         padding: const EdgeInsets.all(8.0),
@@ -134,7 +142,7 @@ class FriendsListTile extends StatelessWidget {
                                 child: GestureDetector(
                                   onTap: () => _navigateToChatPage(
                                     context,
-                                    friendData.id, // friendId
+                                    friendData.id,
                                     friendData['email'] ?? '',
                                     friendData['name'] ?? '',
                                     friendData['imageUrl'] ?? '',
@@ -148,21 +156,19 @@ class FriendsListTile extends StatelessWidget {
                                                 ? NetworkImage(
                                                     friendData['imageUrl'])
                                                 : null,
-                                        backgroundColor:
-                                            Colors.grey, // Placeholder color
+                                        backgroundColor: Colors.grey,
                                       ),
                                       const SizedBox(height: 5),
                                       Text(
                                         friendData['name'] ??
-                                            friendData[
-                                                'email'], // Display name or email
+                                            friendData['email'],
                                         style: const TextStyle(fontSize: 12),
                                       ),
                                     ],
                                   ),
                                 ),
                               );
-                            }),
+                            }).toList(),
                             Spacer(),
                             const Icon(Icons.arrow_forward_ios),
                           ],

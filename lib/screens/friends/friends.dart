@@ -8,11 +8,17 @@ import 'package:dip_app_2/services/chat/chat_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class FriendsPage extends StatelessWidget {
-  FriendsPage({super.key});
+class FriendsPage extends StatefulWidget {
+  const FriendsPage({super.key});
 
+  @override
+  State<FriendsPage> createState() => _FriendsPageState();
+}
+
+class _FriendsPageState extends State<FriendsPage> {
   // Auth service instances
   final AuthService authService = AuthService();
+
   final ChatService chatService = ChatService();
 
   @override
@@ -92,105 +98,139 @@ class FriendsPage extends StatelessWidget {
     return latestMessages;
   }
 
-  // Build a list of friends and their latest messages
+  // Build a list of friends and their latest messages, excluding blocked users
   Widget _buildFriendsList(String currentUserId) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
+    return FutureBuilder<List<String>>(
+      future: FirebaseFirestore.instance
           .collection('users')
           .doc(currentUserId)
-          .collection('friends')
-          .snapshots(),
-      builder: (context, friendsSnapshot) {
-        if (friendsSnapshot.hasError) {
+          .collection('blockedUsers')
+          .get()
+          .then((snapshot) => snapshot.docs
+              .map((doc) => doc.id)
+              .toList()), // Get list of blocked user IDs
+      builder: (context, blockedUsersSnapshot) {
+        if (blockedUsersSnapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (blockedUsersSnapshot.hasError) {
           return Center(
             child: Text(
-              'Error: ${friendsSnapshot.error}',
+              'Error: ${blockedUsersSnapshot.error}',
               style: const TextStyle(color: Colors.red, fontSize: 16),
             ),
           );
         }
 
-        if (friendsSnapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
+        // List of blocked user IDs
+        List<String> blockedUserIds = blockedUsersSnapshot.data ?? [];
 
-        if (!friendsSnapshot.hasData || friendsSnapshot.data!.docs.isEmpty) {
-          return const Center(
-            child: Text('No friends found'),
-          );
-        }
-
-        // Extract friend IDs
-        List<String> friendIds = friendsSnapshot.data!.docs
-            .map((doc) => doc['friendId'] as String)
-            .toList();
-
-        // Fetch friends' data
-        return FutureBuilder<QuerySnapshot>(
-          future: FirebaseFirestore.instance
+        // Stream for friends excluding blocked users
+        return StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
               .collection('users')
-              .where(FieldPath.documentId, whereIn: friendIds)
-              .get(),
-          builder: (context, usersSnapshot) {
-            if (usersSnapshot.connectionState == ConnectionState.waiting) {
+              .doc(currentUserId)
+              .collection('friends')
+              .snapshots(),
+          builder: (context, friendsSnapshot) {
+            if (friendsSnapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             }
 
-            if (!usersSnapshot.hasData || usersSnapshot.data!.docs.isEmpty) {
+            if (friendsSnapshot.hasError) {
+              return Center(
+                child: Text(
+                  'Error: ${friendsSnapshot.error}',
+                  style: const TextStyle(color: Colors.red, fontSize: 16),
+                ),
+              );
+            }
+
+            if (!friendsSnapshot.hasData ||
+                friendsSnapshot.data!.docs.isEmpty) {
               return const Center(
                 child: Text('No friends found'),
               );
             }
 
-            // Map friend IDs to their data
-            Map<String, Map<String, dynamic>> friendsData = {};
-            for (var doc in usersSnapshot.data!.docs) {
-              friendsData[doc.id] = doc.data() as Map<String, dynamic>;
-            }
-
-            // Build list of chat room IDs
-            List<String> chatRoomIds = friendIds
-                .map((friendId) =>
-                    chatService.getChatRoomId(currentUserId, friendId))
+            // Filter out blocked user IDs from friend IDs
+            List<String> friendIds = friendsSnapshot.data!.docs
+                .map((doc) => doc['friendId'] as String)
+                .where((friendId) => !blockedUserIds.contains(friendId))
                 .toList();
 
-            // Fetch latest messages from chat rooms
-            return FutureBuilder<Map<String, Map<String, dynamic>>>(
-              future: fetchLatestMessages(chatRoomIds, currentUserId),
-              builder: (context, messagesSnapshot) {
-                if (messagesSnapshot.connectionState ==
-                    ConnectionState.waiting) {
+            // Fetch friends' data
+            return FutureBuilder<QuerySnapshot>(
+              future: FirebaseFirestore.instance
+                  .collection('users')
+                  .where(FieldPath.documentId, whereIn: friendIds)
+                  .get(),
+              builder: (context, usersSnapshot) {
+                if (usersSnapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                if (messagesSnapshot.hasError) {
-                  return Center(
-                    child: Text(
-                      'Error: ${messagesSnapshot.error}',
-                      style: const TextStyle(color: Colors.red, fontSize: 16),
-                    ),
+                if (!usersSnapshot.hasData ||
+                    usersSnapshot.data!.docs.isEmpty) {
+                  return const Center(
+                    child: Text('No friends found'),
                   );
                 }
 
-                Map<String, Map<String, dynamic>> latestMessages =
-                    messagesSnapshot.data ?? {};
+                // Map friend IDs to their data
+                Map<String, Map<String, dynamic>> friendsData = {};
+                for (var doc in usersSnapshot.data!.docs) {
+                  friendsData[doc.id] = doc.data() as Map<String, dynamic>;
+                }
 
-                // Build friend list items
-                List<Widget> friendWidgets = friendIds.map((friendId) {
-                  Map<String, dynamic>? friendData = friendsData[friendId];
-                  Map<String, dynamic>? messageInfo = latestMessages[friendId];
-                  String chatRoomID =
-                      chatService.getChatRoomId(currentUserId, friendId);
+                // Build list of chat room IDs
+                List<String> chatRoomIds = friendIds
+                    .map((friendId) =>
+                        chatService.getChatRoomId(currentUserId, friendId))
+                    .toList();
 
-                  if (friendData != null) {
-                    return _buildFriendListItem(
-                        friendId, friendData, messageInfo, context, chatRoomID);
-                  } else {
-                    return Container();
-                  }
-                }).toList();
+                // Fetch latest messages from chat rooms
+                return FutureBuilder<Map<String, Map<String, dynamic>>>(
+                  future: fetchLatestMessages(chatRoomIds, currentUserId),
+                  builder: (context, messagesSnapshot) {
+                    if (messagesSnapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
 
-                return ListView(children: friendWidgets);
+                    if (messagesSnapshot.hasError) {
+                      return Center(
+                        child: Text(
+                          'Error: ${messagesSnapshot.error}',
+                          style:
+                              const TextStyle(color: Colors.red, fontSize: 16),
+                        ),
+                      );
+                    }
+
+                    Map<String, Map<String, dynamic>> latestMessages =
+                        messagesSnapshot.data ?? {};
+
+                    // Build friend list items
+                    List<Widget> friendWidgets = friendIds.map((friendId) {
+                      Map<String, dynamic>? friendData = friendsData[friendId];
+                      Map<String, dynamic>? messageInfo =
+                          latestMessages[friendId];
+                      String chatRoomID =
+                          chatService.getChatRoomId(currentUserId, friendId);
+
+                      if (friendData != null) {
+                        return _buildFriendListItem(friendId, friendData,
+                            messageInfo, context, chatRoomID);
+                      } else {
+                        return Container();
+                      }
+                    }).toList();
+
+                    return ListView(children: friendWidgets);
+                  },
+                );
               },
             );
           },
@@ -253,7 +293,11 @@ class FriendsPage extends StatelessWidget {
               profileImageUrl: friendData['imageUrl'],
             ),
           ),
-        );
+        ).then((shouldRefresh) {
+          if (shouldRefresh == true) {
+            setState(() {}); // Refresh FriendsPage or FriendFinderPage
+          }
+        });
       },
       leading: CircleAvatar(
         radius: 20,
@@ -269,16 +313,15 @@ class FriendsPage extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
             child: const Icon(
               Icons.messenger_outline_outlined,
-              color: Colors.black,
             ),
           ),
           if (showUnreadDot)
             Positioned(
               top: 6,
-              right: 6,
+              right: 10,
               child: Container(
-                width: 8,
-                height: 8,
+                width: 12,
+                height: 12,
                 decoration: BoxDecoration(
                   color: Colors.red,
                   shape: BoxShape.circle,

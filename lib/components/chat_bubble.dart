@@ -32,10 +32,10 @@ class ChatBubble extends StatelessWidget {
                 offset: const Offset(0, 5),
               ),
             ],
-            // if isCurrentUser chat buble = green if not chat bubble = white
+            // if isCurrentUser chat bubble = blue? if not chat bubble = white
             color: isCurrentUser
                 ? const Color.fromARGB(255, 46, 180, 234)
-                : Theme.of(context).colorScheme.tertiary,
+                : Theme.of(context).colorScheme.secondaryFixed,
             borderRadius: BorderRadius.only(
               topLeft: const Radius.circular(12),
               topRight: const Radius.circular(12),

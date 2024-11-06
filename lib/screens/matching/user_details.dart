@@ -99,6 +99,9 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
         isUserBlocked = true;
       });
       print('User ${widget.userData['name']} has been blocked');
+
+      // Return to ChatPage with refresh flag
+      Navigator.pop(context, true); // Passing true for refresh
     } catch (e) {
       print('Error blocking user: $e');
     }
@@ -113,6 +116,9 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
         isUserBlocked = false;
       });
       print('User ${widget.userData['name']} has been unblocked');
+
+      // Return to ChatPage with refresh flag
+      Navigator.pop(context, true); // Passing true for refresh
     } catch (e) {
       print('Error unblocking user: $e');
     }
