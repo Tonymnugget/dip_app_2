@@ -14,7 +14,6 @@ class ChatBubble extends StatelessWidget {
 
   @override
   build(BuildContext context) {
-    // TODO: fix the darkmode for the chatbubbles
     // Get screen width
     double maxBubbleWidth = MediaQuery.of(context).size.width * 0.75;
     return Align(

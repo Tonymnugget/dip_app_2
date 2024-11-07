@@ -18,13 +18,27 @@ class FriendsPage extends StatefulWidget {
 class _FriendsPageState extends State<FriendsPage> {
   // Auth service instances
   final AuthService authService = AuthService();
-
   final ChatService chatService = ChatService();
+  Future<List<String>>? _blockedUsersFuture;
+  String? currentUserId;
+
+  @override
+  void initState() {
+    super.initState();
+    final currentUser = authService.getCurrentUser();
+    if (currentUser != null) {
+      currentUserId = currentUser.uid;
+      _blockedUsersFuture = _fetchBlockedUsers(currentUserId!);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Get current user ID
-    final currentUser = authService.getCurrentUser();
+    if (currentUserId == null) {
+      return Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -46,9 +60,7 @@ class _FriendsPageState extends State<FriendsPage> {
         ),
       ),
       bottomNavigationBar: MyNavigationBar(),
-      body: currentUser == null
-          ? const Center(child: CircularProgressIndicator())
-          : _buildFriendsList(currentUser.uid),
+      body: _buildFriendsList(),
     );
   }
 
@@ -98,17 +110,20 @@ class _FriendsPageState extends State<FriendsPage> {
     return latestMessages;
   }
 
+  Future<List<String>> _fetchBlockedUsers(String userId) async {
+    final snapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('blockedUsers')
+        .get();
+
+    return snapshot.docs.map((doc) => doc.id).toList();
+  }
+
   // Build a list of friends and their latest messages, excluding blocked users
-  Widget _buildFriendsList(String currentUserId) {
+  Widget _buildFriendsList() {
     return FutureBuilder<List<String>>(
-      future: FirebaseFirestore.instance
-          .collection('users')
-          .doc(currentUserId)
-          .collection('blockedUsers')
-          .get()
-          .then((snapshot) => snapshot.docs
-              .map((doc) => doc.id)
-              .toList()), // Get list of blocked user IDs
+      future: _blockedUsersFuture,
       builder: (context, blockedUsersSnapshot) {
         if (blockedUsersSnapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -162,10 +177,7 @@ class _FriendsPageState extends State<FriendsPage> {
 
             // Fetch friends' data
             return FutureBuilder<QuerySnapshot>(
-              future: FirebaseFirestore.instance
-                  .collection('users')
-                  .where(FieldPath.documentId, whereIn: friendIds)
-                  .get(),
+              future: _fetchFriendsData(friendIds),
               builder: (context, usersSnapshot) {
                 if (usersSnapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -187,12 +199,12 @@ class _FriendsPageState extends State<FriendsPage> {
                 // Build list of chat room IDs
                 List<String> chatRoomIds = friendIds
                     .map((friendId) =>
-                        chatService.getChatRoomId(currentUserId, friendId))
+                        chatService.getChatRoomId(currentUserId!, friendId))
                     .toList();
 
                 // Fetch latest messages from chat rooms
                 return FutureBuilder<Map<String, Map<String, dynamic>>>(
-                  future: fetchLatestMessages(chatRoomIds, currentUserId),
+                  future: fetchLatestMessages(chatRoomIds, currentUserId!),
                   builder: (context, messagesSnapshot) {
                     if (messagesSnapshot.connectionState ==
                         ConnectionState.waiting) {
@@ -218,7 +230,7 @@ class _FriendsPageState extends State<FriendsPage> {
                       Map<String, dynamic>? messageInfo =
                           latestMessages[friendId];
                       String chatRoomID =
-                          chatService.getChatRoomId(currentUserId, friendId);
+                          chatService.getChatRoomId(currentUserId!, friendId);
 
                       if (friendData != null) {
                         return _buildFriendListItem(friendId, friendData,
@@ -239,13 +251,21 @@ class _FriendsPageState extends State<FriendsPage> {
     );
   }
 
+  Future<QuerySnapshot> _fetchFriendsData(List<String> friendIds) {
+    return FirebaseFirestore.instance
+        .collection('users')
+        .where(FieldPath.documentId, whereIn: friendIds)
+        .get();
+  }
+
   // Build individual list tile for each friend
   Widget _buildFriendListItem(
-      String friendId,
-      Map<String, dynamic> friendData,
-      Map<String, dynamic>? messageInfo,
-      BuildContext context,
-      String chatRoomID) {
+    String friendId,
+    Map<String, dynamic> friendData,
+    Map<String, dynamic>? messageInfo,
+    BuildContext context,
+    String chatRoomID,
+  ) {
     String latestMessage = messageInfo != null
         ? messageInfo['message'] ?? 'No messages yet'
         : 'No messages yet';
@@ -277,10 +297,9 @@ class _FriendsPageState extends State<FriendsPage> {
       timestamp: formattedTime,
       subtitle: latestMessage,
       text: friendData["name"] ?? friendData["email"],
-      onTap: () {
-        // Mark messages as read when tapping the message icon
-        chatService.markMessagesAsRead(
-            chatRoomID, authService.getCurrentUser()!.uid);
+      onTap: () async {
+        // Mark messages as read
+        await chatService.markMessagesAsRead(chatRoomID, currentUserId!);
 
         // Navigate to chat page
         Navigator.push(
@@ -293,19 +312,23 @@ class _FriendsPageState extends State<FriendsPage> {
               profileImageUrl: friendData['imageUrl'],
             ),
           ),
-        ).then((shouldRefresh) {
-          if (shouldRefresh == true) {
-            setState(() {}); // Refresh FriendsPage or FriendFinderPage
-          }
+        );
+        // Re-fetch data when returning from ChatPage
+        setState(() {
+          _blockedUsersFuture = _fetchBlockedUsers(currentUserId!);
         });
       },
-      leading: CircleAvatar(
-        radius: 20,
-        foregroundImage: friendData['imageUrl'] != null
-            ? NetworkImage(friendData['imageUrl'])
-            : null,
-        backgroundColor: Colors.grey,
-      ),
+      leading: friendData['imageUrl'] != null
+          ? CircleAvatar(
+              radius: 20,
+              foregroundImage: NetworkImage(friendData['imageUrl']),
+              backgroundColor: Theme.of(context).colorScheme.primary,
+            )
+          : CircleAvatar(
+              radius: 20,
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              child: Icon(Icons.person),
+            ),
       trailing: Stack(
         alignment: Alignment.center,
         children: [

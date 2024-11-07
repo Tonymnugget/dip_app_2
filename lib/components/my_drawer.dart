@@ -7,6 +7,7 @@ class MyDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      shape: const ContinuousRectangleBorder(),
       backgroundColor: Theme.of(context).colorScheme.surface,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -15,10 +16,7 @@ class MyDrawer extends StatelessWidget {
             children: [
               // drawer header
               DrawerHeader(
-                child: Icon(
-                  Icons.favorite,
-                  color: Theme.of(context).colorScheme.inversePrimary,
-                ),
+                child: Image.asset('assets/images/orbitlogo_for_splash.png'),
               ),
 
               const SizedBox(height: 25),
@@ -35,44 +33,6 @@ class MyDrawer extends StatelessWidget {
                   onTap: () {
                     // this is already the home screen so just pop drawer
                     Navigator.pop(context);
-                  },
-                ),
-              ),
-
-              // profile tile
-              Padding(
-                padding: const EdgeInsets.only(left: 25.0),
-                child: ListTile(
-                  leading: Icon(
-                    Icons.person,
-                    color: Theme.of(context).colorScheme.inversePrimary,
-                  ),
-                  title: const Text("P R O F I L E"),
-                  onTap: () {
-                    // pop drawer
-                    Navigator.pop(context);
-
-                    // navigator to profile page
-                    Navigator.pushNamed(context, '/profile');
-                  },
-                ),
-              ),
-
-              // users tile
-              Padding(
-                padding: const EdgeInsets.only(left: 25.0),
-                child: ListTile(
-                  leading: Icon(
-                    Icons.person_2,
-                    color: Theme.of(context).colorScheme.inversePrimary,
-                  ),
-                  title: const Text("F R I E N D S"),
-                  onTap: () {
-                    // pop drawer
-                    Navigator.pop(context);
-
-                    // navigator to users page
-                    Navigator.pushNamed(context, '/friends');
                   },
                 ),
               ),
@@ -123,3 +83,44 @@ class MyDrawer extends StatelessWidget {
     );
   }
 }
+
+/*
+              // profile tile
+              Padding(
+                padding: const EdgeInsets.only(left: 25.0),
+                child: ListTile(
+                  leading: Icon(
+                    Icons.person,
+                    color: Theme.of(context).colorScheme.inversePrimary,
+                  ),
+                  title: const Text("P R O F I L E"),
+                  onTap: () {
+                    // pop drawer
+                    Navigator.pop(context);
+
+                    // navigator to profile page
+                    Navigator.pushNamed(context, '/profile');
+                  },
+                ),
+              ),
+
+              // users tile
+              Padding(
+                padding: const EdgeInsets.only(left: 25.0),
+                child: ListTile(
+                  leading: Icon(
+                    Icons.person_2,
+                    color: Theme.of(context).colorScheme.inversePrimary,
+                  ),
+                  title: const Text("F R I E N D S"),
+                  onTap: () {
+                    // pop drawer
+                    Navigator.pop(context);
+
+                    // navigator to users page
+                    Navigator.pushNamed(context, '/friends');
+                  },
+                ),
+              ),
+
+*/

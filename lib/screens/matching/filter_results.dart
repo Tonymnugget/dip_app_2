@@ -65,13 +65,17 @@ class FilterResultsPage extends StatelessWidget {
 
       return MyTile(
         text: userName,
-        leading: CircleAvatar(
-          radius: 20,
-          foregroundImage: (imageUrl != null && imageUrl.isNotEmpty)
-              ? NetworkImage(imageUrl)
-              : null,
-          backgroundColor: Colors.grey,
-        ),
+        leading: (imageUrl != null && imageUrl.isNotEmpty)
+            ? CircleAvatar(
+                radius: 20,
+                foregroundImage: NetworkImage(imageUrl),
+                backgroundColor: Theme.of(context).colorScheme.primary,
+              )
+            : CircleAvatar(
+                radius: 20,
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                child: Icon(Icons.person),
+              ),
         onTap: () {
           Navigator.push(
             context,

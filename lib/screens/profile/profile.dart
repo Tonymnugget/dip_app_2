@@ -197,7 +197,6 @@ class ProfilePage extends StatelessWidget {
                                 ),
                               ),
                             ),
-
                             // Positioned Edit Button
                             Positioned(
                               top: 10,
@@ -212,6 +211,17 @@ class ProfilePage extends StatelessWidget {
                                 iconSize: 30,
                                 tooltip: 'Edit profile',
                               ),
+                            ),
+
+                            // Corrected Positioned Gender Display
+                            Positioned(
+                              top: 10,
+                              left: 10,
+                              child: profileData['gender'] == 'Male'
+                                  ? Icon(Icons.male_rounded, size: 30)
+                                  : profileData['gender'] == 'Female'
+                                      ? Icon(Icons.female_rounded, size: 30)
+                                      : SizedBox.shrink(),
                             ),
                           ],
                         ),

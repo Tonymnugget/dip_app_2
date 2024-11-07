@@ -3,6 +3,13 @@ flutter_native_splash:
   ios: false
   web: false
 
+  color: '#cad8dc'
+  color_dark: "#3C4345"
 
   android_12: 
+    color: '#cad8dc'
+    color_dark: "#3C4345"
+    image: 'assets/images/orbitlogo_for_splash1.png'
+    branding: 'assets/images/orbitbrandingLight.png'
+    branding_dark: 'assets/images/orbitbrandingDark.png'
 

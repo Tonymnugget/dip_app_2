@@ -78,10 +78,16 @@ flutter:
     - assets/images/Residential halls.png
     - assets/images/like.svg
     - assets/images/dislike.svg
-    - assets/images/brand.png
+    - assets/images/orbitbranding.png
+    - assets/images/orbitbrandingLight.png
+    - assets/images/orbitbrandingDark.png
     - assets/images/orbitlogo.png
-    - assets/images/orbitlogoandroid.png
+    - assets/images/orbitlogoandroid959.png
+    - assets/images/orbitlogoandroid1.png
+    - assets/images/orbitlogo_for_splash.png
+    - assets/images/orbitlogo_for_splash1.png
     - assets/images/ntu_hive.png
+    - assets/images/justin.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

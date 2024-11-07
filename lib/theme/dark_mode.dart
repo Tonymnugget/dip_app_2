@@ -4,6 +4,7 @@ ThemeData darkMode = ThemeData(
   brightness: Brightness.dark,
   colorScheme: ColorScheme.dark(
     surface: Colors.grey.shade900,
+    surfaceDim: Colors.grey.shade900,
     inverseSurface: Colors.grey.shade900,
     primary: Colors.grey.shade900,
     onPrimary: Colors.white,

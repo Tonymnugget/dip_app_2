@@ -277,6 +277,30 @@ class FirestoreService {
     return friendDoc.exists;
   }
 
+  // Function to unfriend
+  Future<void> unfriend(String senderId, currentUserId) async {
+    try {
+      // Remove the sender from the current user's 'friends' collection
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUserId)
+          .collection('friends')
+          .doc(senderId)
+          .delete();
+
+      // Remove the current user from the sender's 'friends' collection
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(senderId)
+          .collection('friends')
+          .doc(currentUserId)
+          .delete();
+    } catch (e) {
+      print('Error unfriending user: $e');
+      rethrow;
+    }
+  }
+
   // Block User
   Future<void> blockUserInFirebase(String userId) async {
     // get current user id

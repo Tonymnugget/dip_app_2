@@ -18,11 +18,13 @@ class _NotificationPageState extends State<NotificationPage> {
   final User? currentUser = FirebaseAuth.instance.currentUser;
   List<Map<String, String?>> friendRequestDetails = [];
   List<Map<String, dynamic>> friendHistory = [];
+  // List<Map<String, dynamic>> pendingRequests = [];
 
   @override
   void initState() {
     super.initState();
     _fetchFriendRequests();
+    // _fetchPendingFriendRequests();
     _fetchFriendHistory();
   }
 
@@ -67,6 +69,50 @@ class _NotificationPageState extends State<NotificationPage> {
       print('Error fetching friend requests: $e');
     }
   }
+
+  /*Future<void> _fetchPendingFriendRequests() async {
+    if (currentUser == null) return;
+
+    try {
+      QuerySnapshot receivedRequestsSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser!.uid)
+          .collection('receivedRequests')
+          .get();
+
+      List<Map<String, dynamic>> pendingRequest = [];
+
+      for (var doc in receivedRequestsSnapshot.docs) {
+        String senderId = doc['senderId'];
+        Timestamp timestamp = doc['timestamp'];
+
+        // Fetch the sender's details
+        DocumentSnapshot senderSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(senderId)
+            .get();
+
+        if (senderSnapshot.exists) {
+          String senderName = senderSnapshot['name'];
+          String? senderImageUrl = senderSnapshot['imageUrl'];
+          DateTime date = timestamp.toDate();
+
+          pendingRequest.add({
+            'name': senderName,
+            'imageUrl': senderImageUrl,
+            'date': date,
+          });
+        }
+      }
+
+      // Add this data to the state or combine with existing data
+      setState(() {
+        pendingRequests = pendingRequest;
+      });
+    } catch (e) {
+      print('Error fetching pending friend requests: $e');
+    }
+  }*/
 
   Future<void> _fetchFriendHistory() async {
     if (currentUser == null) return;
@@ -146,10 +192,20 @@ class _NotificationPageState extends State<NotificationPage> {
               Navigator.push(
                 context,
                 CustomNavigator.createSlideRoute(FriendRequestPage()),
-              ).then((_) => _fetchFriendRequests());
+              ).then((_) {
+                setState(() {
+                  _fetchFriendRequests();
+                  // _fetchPendingFriendRequests();
+                  _fetchFriendHistory();
+                });
+              });
             },
             trailing: const Icon(Icons.arrow_forward_ios),
           ),
+
+          // Pending Friend Requests Section
+          // _buildPendingRequestsSection(),
+
           // Friend history sections
           _buildSection('Today', categorizedHistory['Today'] ?? []),
           _buildSection('Last 7 days', categorizedHistory['Last 7 days'] ?? []),
@@ -192,6 +248,98 @@ class _NotificationPageState extends State<NotificationPage> {
     return categorized;
   }
 
+  Widget _buildProfileImages() {
+    if (friendRequestDetails.isEmpty) {
+      return CircleAvatar(
+        radius: 20,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        child: Icon(Icons.person_add_sharp, size: 20, color: Colors.white),
+      );
+    } else if (friendRequestDetails.length == 1) {
+      return CircleAvatar(
+        radius: 20,
+        backgroundImage: friendRequestDetails[0]['imageUrl'] != null
+            ? NetworkImage(friendRequestDetails[0]['imageUrl']!)
+            : null,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        child: friendRequestDetails[0]['imageUrl'] == null
+            ? Icon(Icons.person, size: 20, color: Colors.white)
+            : null,
+      );
+    } else {
+      return SizedBox(
+        width: 40,
+        height: 40,
+        child: Stack(
+          children: [
+            Positioned(
+              left: 0,
+              child: CircleAvatar(
+                radius: 20,
+                backgroundImage: friendRequestDetails[0]['imageUrl'] != null
+                    ? NetworkImage(friendRequestDetails[0]['imageUrl']!)
+                    : null,
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                child: friendRequestDetails[0]['imageUrl'] == null
+                    ? Icon(Icons.person, size: 20, color: Colors.white)
+                    : null,
+              ),
+            ),
+            Positioned(
+              right: 0,
+              child: CircleAvatar(
+                radius: 20,
+                backgroundImage: friendRequestDetails[1]['imageUrl'] != null
+                    ? NetworkImage(friendRequestDetails[1]['imageUrl']!)
+                    : null,
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                child: friendRequestDetails[1]['imageUrl'] == null
+                    ? Icon(Icons.person, size: 20, color: Colors.white)
+                    : null,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  /*Widget _buildPendingRequestsSection() {
+    if (pendingRequests.isEmpty) return SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text(
+            'Pending Friend Requests',
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        ...pendingRequests.map((request) => ListTile(
+              leading: CircleAvatar(
+                backgroundImage: request['imageUrl'] != null
+                    ? NetworkImage(request['imageUrl'])
+                    : null,
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                child: request['imageUrl'] == null
+                    ? Icon(Icons.person, color: Colors.white)
+                    : null,
+              ),
+              title: Text(request['name']),
+              subtitle: Text(
+                'Sent on ${DateFormat('MMM dd, yyyy').format(request['date'])}',
+              ),
+            )),
+      ],
+    );
+  }*/
+
   Widget _buildSection(String title, List<Map<String, dynamic>> entries) {
     if (entries.isEmpty) return SizedBox.shrink();
 
@@ -214,7 +362,7 @@ class _NotificationPageState extends State<NotificationPage> {
                 backgroundImage: entry['imageUrl'] != null
                     ? NetworkImage(entry['imageUrl'])
                     : null,
-                backgroundColor: Colors.grey,
+                backgroundColor: Theme.of(context).colorScheme.primary,
                 child: entry['imageUrl'] == null
                     ? Icon(Icons.person, color: Colors.white)
                     : null,
@@ -226,61 +374,5 @@ class _NotificationPageState extends State<NotificationPage> {
             )),
       ],
     );
-  }
-
-  Widget _buildProfileImages() {
-    if (friendRequestDetails.isEmpty) {
-      return CircleAvatar(
-        radius: 20,
-        backgroundColor: Colors.grey,
-        child: Icon(Icons.person_add_sharp, size: 20, color: Colors.white),
-      );
-    } else if (friendRequestDetails.length == 1) {
-      return CircleAvatar(
-        radius: 20,
-        backgroundImage: friendRequestDetails[0]['imageUrl'] != null
-            ? NetworkImage(friendRequestDetails[0]['imageUrl']!)
-            : null,
-        backgroundColor: Colors.grey,
-        child: friendRequestDetails[0]['imageUrl'] == null
-            ? Icon(Icons.person, size: 20, color: Colors.white)
-            : null,
-      );
-    } else {
-      return SizedBox(
-        width: 40,
-        height: 40,
-        child: Stack(
-          children: [
-            Positioned(
-              left: 0,
-              child: CircleAvatar(
-                radius: 20,
-                backgroundImage: friendRequestDetails[0]['imageUrl'] != null
-                    ? NetworkImage(friendRequestDetails[0]['imageUrl']!)
-                    : null,
-                backgroundColor: Colors.grey,
-                child: friendRequestDetails[0]['imageUrl'] == null
-                    ? Icon(Icons.person, size: 20, color: Colors.white)
-                    : null,
-              ),
-            ),
-            Positioned(
-              right: 0,
-              child: CircleAvatar(
-                radius: 20,
-                backgroundImage: friendRequestDetails[1]['imageUrl'] != null
-                    ? NetworkImage(friendRequestDetails[1]['imageUrl']!)
-                    : null,
-                backgroundColor: Colors.grey,
-                child: friendRequestDetails[1]['imageUrl'] == null
-                    ? Icon(Icons.person, size: 20, color: Colors.white)
-                    : null,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
   }
 }

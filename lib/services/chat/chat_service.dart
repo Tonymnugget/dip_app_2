@@ -78,6 +78,19 @@ class ChatService {
           .doc(chatRoomID)
           .collection("messages")
           .add(newMessage.toMap());
+
+      // Update chat room document
+      await _firestore.collection("chat_rooms").doc(chatRoomID).set(
+        {
+          'lastMessage': message,
+          'lastMessageTimestamp': timestamp,
+          'participants': [currentUserID, receiverID],
+          'unreadBy': {
+            receiverID: true,
+            currentUserID: false,
+          },
+        },
+      );
     } catch (e) {
       print('Failed to send message or update chat frequency: $e');
     }
@@ -117,6 +130,11 @@ class ChatService {
 
   Future<void> markMessagesAsRead(String chatRoomID, String userID) async {
     try {
+      // Update the unreadBy status in the chat room document
+      await _firestore.collection("chat_rooms").doc(chatRoomID).update({
+        'unreadBy.$userID': false,
+      });
+
       final QuerySnapshot unreadMessagesSnapshot = await _firestore
           .collection("chat_rooms")
           .doc(chatRoomID)

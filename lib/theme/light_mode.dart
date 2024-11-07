@@ -4,6 +4,7 @@ ThemeData lightMode = ThemeData(
   brightness: Brightness.light,
   colorScheme: ColorScheme.light(
     surface: Colors.white,
+    surfaceDim: Color.fromARGB(100, 202, 216, 220),
     inverseSurface: const Color.fromARGB(255, 190, 199, 217),
     primary: const Color.fromARGB(255, 26, 76, 99),
     onPrimary: Colors.white,

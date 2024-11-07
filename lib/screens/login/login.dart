@@ -36,9 +36,9 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(100, 202, 216, 220),
+      backgroundColor: Theme.of(context).colorScheme.surfaceDim,
       body: Center(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(25.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -109,7 +109,6 @@ class LoginPage extends StatelessWidget {
                       " Register Here",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: Colors.black,
                       ),
                     ),
                   ),

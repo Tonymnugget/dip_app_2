@@ -86,13 +86,20 @@ class _HomePageState extends State<HomePage> {
                 Row(
                   children: [
                     const SizedBox(width: 20),
-                    CircleAvatar(
-                      radius: 30,
-                      backgroundImage: userData!['imageUrl'] != null
-                          ? NetworkImage(userData!['imageUrl'])
-                          : null,
-                      backgroundColor: Colors.grey, // Placeholder color
-                    ),
+                    userData!['imageUrl'] != null
+                        ? CircleAvatar(
+                            radius: 30,
+                            backgroundImage:
+                                NetworkImage(userData!['imageUrl']),
+                            backgroundColor:
+                                Theme.of(context).colorScheme.primary,
+                          )
+                        : CircleAvatar(
+                            radius: 30,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.primary,
+                            child: Icon(Icons.person),
+                          ),
                     const SizedBox(width: 10),
                     Text(
                       'Welcome back!\n${userData!['name']}',

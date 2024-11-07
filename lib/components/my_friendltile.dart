@@ -149,15 +149,22 @@ class _FriendsListTileState extends State<FriendsListTile> {
                                   ),
                                   child: Column(
                                     children: [
-                                      CircleAvatar(
-                                        radius: 28,
-                                        backgroundImage:
-                                            friendData['imageUrl'] != null
-                                                ? NetworkImage(
-                                                    friendData['imageUrl'])
-                                                : null,
-                                        backgroundColor: Colors.grey,
-                                      ),
+                                      friendData['imageUrl'] != null
+                                          ? CircleAvatar(
+                                              radius: 28,
+                                              backgroundImage: NetworkImage(
+                                                  friendData['imageUrl']),
+                                              backgroundColor: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary,
+                                            )
+                                          : CircleAvatar(
+                                              radius: 28,
+                                              backgroundColor: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary,
+                                              child: Icon(Icons.person),
+                                            ),
                                       const SizedBox(height: 5),
                                       Text(
                                         friendData['name'] ??

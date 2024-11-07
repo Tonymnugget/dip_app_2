@@ -62,18 +62,14 @@ class AuthService {
           // save user in Firestore
           _firestore.collection("users").doc(uid).set({'email': email});
 
-          await Future.delayed(
-              Duration(milliseconds: 5000)); // Add a small delay
+          // Delay to wait for document to be created on firestore
+          await Future.delayed(Duration(milliseconds: 5000));
 
-          _firestore.collection("users").doc(uid).set(
-              {
-                'uid': uid,
-                'name': name,
-                'profileComplete': false,
-              },
-              SetOptions(
-                  merge: true) // Add this to merge data instead of overwriting
-              );
+          _firestore.collection("users").doc(uid).set({
+            'uid': uid,
+            'name': name,
+            'profileComplete': false,
+          }, SetOptions(merge: true));
         } else {
           throw Exception("Failed to retrieve UID");
         }
@@ -85,6 +81,8 @@ class AuthService {
           message = 'The password provided is too weak.';
         } else if (e.code == 'email-already-in-use') {
           message = 'An account already exists with that email.';
+        } else {
+          message = e.code;
         }
         Fluttertoast.showToast(
           msg: message,
@@ -122,6 +120,8 @@ class AuthService {
         message = 'No user found for that email.';
       } else if (e.code == 'invalid-credential') {
         message = 'Wrong password provided for that user.';
+      } else {
+        message = e.code;
       }
       Fluttertoast.showToast(
         msg: message,

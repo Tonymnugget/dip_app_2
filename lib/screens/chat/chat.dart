@@ -14,7 +14,7 @@ class ChatPage extends StatefulWidget {
   final String receiverEmail;
   final String receiverID;
   final String receiverName;
-  final String profileImageUrl;
+  final String? profileImageUrl;
 
   const ChatPage(
       {super.key,
@@ -170,7 +170,8 @@ class _ChatPageState extends State<ChatPage> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: MyProfileButton(
-              profileImageUrl: widget.profileImageUrl,
+              profileImageUrl:
+                  widget.profileImageUrl == null ? '' : widget.profileImageUrl!,
               onTap: () async {
                 // Fetch userData from Firestore
                 DocumentSnapshot userSnapshot = await FirebaseFirestore.instance

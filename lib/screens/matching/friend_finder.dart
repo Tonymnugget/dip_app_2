@@ -213,13 +213,24 @@ class FriendFinderPageState extends State<FriendFinderPage> {
                                       size: 50, color: Colors.white),
                                 ),
                               const SizedBox(height: 10),
-                              Text(
-                                '${profileData['name']}',
-                                style: TextStyle(
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 24,
-                                ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    '${profileData['name']}',
+                                    style: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 24,
+                                    ),
+                                  ),
+                                  // Gender Display
+                                  profileData['gender'] == 'Male'
+                                      ? Icon(Icons.male_rounded, size: 30)
+                                      : profileData['gender'] == 'Female'
+                                          ? Icon(Icons.female_rounded, size: 30)
+                                          : SizedBox.shrink(),
+                                ],
                               ),
                               Text(
                                 '${profileData['course']}/${profileData['hall']}',

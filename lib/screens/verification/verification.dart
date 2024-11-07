@@ -84,7 +84,7 @@ class _VerifyEmailState extends State<VerifyEmailPage> {
           child:
               CircularProgressIndicator()) // Temporary placeholder until redirection
       : Scaffold(
-          backgroundColor: Color.fromARGB(100, 202, 216, 220),
+          backgroundColor: Theme.of(context).colorScheme.surfaceDim,
           appBar: AppBar(
             title: Text(
               'Verify Email',

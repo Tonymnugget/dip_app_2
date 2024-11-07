@@ -1,3 +1,4 @@
+import 'package:dip_app_2/models/unread_messages.dart';
 import 'package:dip_app_2/screens/food_finder/food_finder.dart';
 import 'package:dip_app_2/screens/friends/friends.dart';
 import 'package:dip_app_2/screens/matching/filter.dart';
@@ -23,12 +24,17 @@ Future<void> main() async {
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  runApp(ChangeNotifierProvider(
-    create: (context) {
-      final themeProvider = ThemeProvider();
-      themeProvider.setInitialThemeMode(); // Set initial theme based on system
-      return themeProvider;
-    },
+  WidgetsFlutterBinding.ensureInitialized();
+
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider<ThemeProvider>(
+        create: (_) => ThemeProvider()..setInitialThemeMode(),
+      ),
+      ChangeNotifierProvider<UnreadMessagesModel>(
+        create: (_) => UnreadMessagesModel(),
+      ),
+    ],
     child: const MyApp(),
   ));
 }
