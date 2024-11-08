@@ -44,7 +44,7 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: Text(
-          'NTU Orbit',
+          'NTUOrbit',
           style: TextStyle(
             fontFamily: 'Poppins',
             fontWeight: FontWeight.bold,
