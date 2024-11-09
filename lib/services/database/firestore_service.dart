@@ -192,6 +192,21 @@ class FirestoreService {
     return requestDoc.exists;
   }
 
+  // Check if a friend request is already received
+  Future<bool> isFriendRequestReceived(String receiverId) async {
+    User? currentUser = _auth.currentUser;
+    if (currentUser == null) return false;
+
+    final sentRequestRef = _firestore
+        .collection('users')
+        .doc(currentUser.uid)
+        .collection('receivedRequests')
+        .doc(receiverId);
+
+    final requestDoc = await sentRequestRef.get();
+    return requestDoc.exists;
+  }
+
   // Function to accept a friend request
   Future<void> acceptFriendRequest(String senderId, currentUserId) async {
     try {
@@ -342,5 +357,121 @@ class FirestoreService {
 
     // return as a list of uids
     return snapshot.docs.map((doc) => doc.id).toList();
+  }
+
+  // increase the like vote for that particular stall and decrease the dislike vote if disliked before
+  // decrease the like vote if liked before
+  Future<void> voteThumbsUp(String categoryId, String canteenId, String stallId,
+      String userId) async {
+    DocumentReference voteDoc = _firestore
+        .collection('categories')
+        .doc(categoryId)
+        .collection('canteens')
+        .doc(canteenId)
+        .collection('stalls')
+        .doc(stallId)
+        .collection('votes')
+        .doc(userId);
+
+    DocumentReference stallDoc = _firestore
+        .collection('categories')
+        .doc(categoryId)
+        .collection('canteens')
+        .doc(canteenId)
+        .collection('stalls')
+        .doc(stallId);
+
+    DocumentSnapshot docSnapshot = await voteDoc.get();
+
+    if (docSnapshot.exists) {
+      Map<String, dynamic> existingData =
+          docSnapshot.data() as Map<String, dynamic>;
+
+      if (existingData['vote'] == 'thumbsUp') {
+        // User wants to remove their like
+        await stallDoc.update({'thumbsUp': FieldValue.increment(-1)});
+        await voteDoc.delete();
+      } else if (existingData['vote'] == 'thumbsDown') {
+        // User changes vote from dislike to like
+        await stallDoc.update({
+          'thumbsUp': FieldValue.increment(1),
+          'thumbsDown': FieldValue.increment(-1),
+        });
+        await voteDoc.update({'vote': 'thumbsUp'});
+      }
+    } else {
+      // User hasn't voted yet, add a like
+      await stallDoc.update({'thumbsUp': FieldValue.increment(1)});
+      await voteDoc.set({'vote': 'thumbsUp'});
+    }
+  }
+
+  // increase the dislike vote for that particular stall and decrease the like vote if disliked before
+  // decrease the dislike vote if liked before
+  Future<void> voteThumbsDown(String categoryId, String canteenId,
+      String stallId, String userId) async {
+    DocumentReference voteDoc = _firestore
+        .collection('categories')
+        .doc(categoryId)
+        .collection('canteens')
+        .doc(canteenId)
+        .collection('stalls')
+        .doc(stallId)
+        .collection('votes')
+        .doc(userId);
+
+    DocumentReference stallDoc = _firestore
+        .collection('categories')
+        .doc(categoryId)
+        .collection('canteens')
+        .doc(canteenId)
+        .collection('stalls')
+        .doc(stallId);
+
+    DocumentSnapshot docSnapshot = await voteDoc.get();
+
+    if (docSnapshot.exists) {
+      Map<String, dynamic> existingData =
+          docSnapshot.data() as Map<String, dynamic>;
+
+      if (existingData['vote'] == 'thumbsDown') {
+        // User wants to remove their dislike
+        await stallDoc.update({'thumbsDown': FieldValue.increment(-1)});
+        await voteDoc.delete();
+      } else if (existingData['vote'] == 'thumbsUp') {
+        // User changes vote from like to dislike
+        await stallDoc.update({
+          'thumbsUp': FieldValue.increment(-1),
+          'thumbsDown': FieldValue.increment(1),
+        });
+        await voteDoc.update({'vote': 'thumbsDown'});
+      }
+    } else {
+      // User hasn't voted yet, add a dislike
+      await stallDoc.update({'thumbsDown': FieldValue.increment(1)});
+      await voteDoc.set({'vote': 'thumbsDown'});
+    }
+  }
+
+  // return the user's vote
+  Future<String?> getUserVote(String categoryId, String canteenId,
+      String stallId, String userId) async {
+    DocumentReference voteDoc = _firestore
+        .collection('categories')
+        .doc(categoryId)
+        .collection('canteens')
+        .doc(canteenId)
+        .collection('stalls')
+        .doc(stallId)
+        .collection('votes')
+        .doc(userId);
+
+    DocumentSnapshot docSnapshot = await voteDoc.get();
+
+    if (docSnapshot.exists) {
+      Map<String, dynamic> data = docSnapshot.data() as Map<String, dynamic>;
+      return data['vote'] as String?;
+    }
+    return null;
   }
 }

@@ -1,5 +1,5 @@
 import 'package:dip_app_2/models/unread_messages.dart';
-import 'package:dip_app_2/screens/food_finder/food_finder.dart';
+import 'package:dip_app_2/screens/food_finder/category.dart';
 import 'package:dip_app_2/screens/friends/friends.dart';
 import 'package:dip_app_2/screens/matching/filter.dart';
 import 'package:dip_app_2/screens/matching/friend_finder.dart';

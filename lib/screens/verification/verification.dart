@@ -147,6 +147,8 @@ class _VerifyEmailState extends State<VerifyEmailPage> {
                   const SizedBox(height: 24),
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          Theme.of(context).colorScheme.secondaryFixed,
                       minimumSize: const Size.fromHeight(50),
                     ),
                     icon: const Icon(Icons.email, size: 32),
@@ -160,6 +162,8 @@ class _VerifyEmailState extends State<VerifyEmailPage> {
                   TextButton(
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size.fromHeight(50),
+                      backgroundColor:
+                          Theme.of(context).colorScheme.secondaryFixed,
                     ),
                     child: const Text(
                       'Cancel',

@@ -12,7 +12,9 @@ ThemeData lightMode = ThemeData(
     onSecondary: Colors.black,
     secondaryFixed: Colors.white,
     secondaryFixedDim: Colors.grey.shade600,
+    onSecondaryContainer: Colors.black,
     tertiary: Colors.white,
+    tertiaryContainer: Colors.white,
     inversePrimary: const Color.fromARGB(255, 221, 226, 227),
   ),
 );

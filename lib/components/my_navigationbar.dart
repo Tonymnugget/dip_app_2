@@ -1,6 +1,6 @@
 import 'package:dip_app_2/components/my_wechat.dart';
 import 'package:dip_app_2/helper/navigator_animation.dart';
-import 'package:dip_app_2/screens/food_finder/food_finder.dart';
+import 'package:dip_app_2/screens/food_finder/category.dart';
 import 'package:dip_app_2/screens/home/home.dart';
 import 'package:dip_app_2/screens/matching/friend_finder.dart';
 import 'package:dip_app_2/screens/profile/profile.dart';

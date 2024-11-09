@@ -8,23 +8,28 @@ class StallScreen extends StatefulWidget {
   final String categoryId;
   final String canteenId;
   final String canteenImage;
+  final List<String> canteenOpeningHours;
 
-  const StallScreen(
-      {super.key,
-      required this.categoryId,
-      required this.canteenId,
-      required this.canteenImage});
+  const StallScreen({
+    super.key,
+    required this.categoryId,
+    required this.canteenId,
+    required this.canteenImage,
+    required this.canteenOpeningHours,
+  });
 
   @override
   State<StallScreen> createState() => _StallScreenState();
 }
 
 class _StallScreenState extends State<StallScreen> {
-  Color greyContainerColor = Color(0xffCAD6DB);
+  List<String> stallOpeningHoursList = [];
+
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
@@ -42,7 +47,7 @@ class _StallScreenState extends State<StallScreen> {
           color: Theme.of(context).colorScheme.tertiary,
         ),
       ),
-      bottomNavigationBar: MyNavigationBar(),
+      bottomNavigationBar: const MyNavigationBar(),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('categories')
@@ -61,10 +66,9 @@ class _StallScreenState extends State<StallScreen> {
           }
 
           var stalls = snapshot.data!.docs;
-          // print("stalls:$stalls"); // For debugging
 
           return Padding(
-            padding: EdgeInsets.symmetric(horizontal: (15 / width) * width),
+            padding: EdgeInsets.symmetric(horizontal: width * 0.04),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -74,41 +78,59 @@ class _StallScreenState extends State<StallScreen> {
                 Stack(
                   alignment: Alignment.center,
                   children: [
-                    Image.network(
-                      widget.canteenImage,
-                      fit: BoxFit.cover,
-                      height: height * 0.2,
-                      width: width,
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.network(
+                        widget.canteenImage,
+                        fit: BoxFit.cover,
+                        height: height * 0.2,
+                        width: width,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            height: height * 0.2,
+                            color: Colors.grey,
+                            child: const Center(
+                              child: Text("Failed to load image"),
+                            ),
+                          );
+                        },
+                      ),
                     ),
                     Container(
                       width: width,
                       height: height * 0.2,
-                      color: Colors.grey.withOpacity(
-                          0.5), // Adjust opacity to control dullness
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.5),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                     Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
                           widget.canteenId,
                           style: TextStyle(
-                              fontSize: (30 / height) * height,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w900),
+                            fontSize: (30 / height) * height,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w900,
+                          ),
                         ),
                         Text(
-                          "operating Hours:",
+                          "Operating Hours:",
                           style: TextStyle(
-                              fontSize: (18 / height) * height,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w500),
+                            fontSize: (14 / height) * height,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                        Text(
-                          "Daily, --am to --pm",
-                          style: TextStyle(
-                              fontSize: (18 / height) * height,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w500),
-                        ),
+                        ...widget.canteenOpeningHours.map((hour) => Text(
+                              hour,
+                              style: TextStyle(
+                                fontSize: (14 / height) * height,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            )),
                       ],
                     ),
                   ],
@@ -121,17 +143,28 @@ class _StallScreenState extends State<StallScreen> {
                     itemCount: stalls.length,
                     itemBuilder: (context, index) {
                       var stall = stalls[index];
-                      // print("stall:$stall"); // For debugging
                       String stallId = stall.id;
                       Map<String, dynamic> stallData =
                           stall.data() as Map<String, dynamic>;
 
-                      // Access the imageUrl directly
+                      // Access the imageUrl
                       String? imageUrl = stallData['imageUrl'] as String?;
-                      // If 'imageUrl' is null, try 'imageURL'
                       imageUrl ??= stallData['imageURL'] as String?;
 
-                      // Access thumbsUp and thumbsDown
+                      // Handle Stall Opening Hours
+                      String stallOpeningHours;
+                      if (stallData['Opening Hours'] is List) {
+                        stallOpeningHours =
+                            (stallData['Opening Hours'] as List<dynamic>)
+                                .join(", ");
+                        stallOpeningHoursList = List<String>.from(
+                            stallData['Opening Hours'] as List<dynamic>);
+                      } else if (stallData['Opening Hours'] is String) {
+                        stallOpeningHours = stallData['Opening Hours'];
+                      } else {
+                        stallOpeningHours = "---";
+                      }
+
                       int? thumbsUp = stallData['thumbsUp'] as int?;
                       int? thumbsDown = stallData['thumbsDown'] as int?;
 
@@ -145,20 +178,20 @@ class _StallScreenState extends State<StallScreen> {
                                 canteenId: widget.canteenId,
                                 stallId: stallId,
                                 stallImage: imageUrl ?? "",
+                                stallOpeningHours: stallOpeningHoursList,
                               ),
                             ),
                           );
                         },
                         child: Padding(
-                          padding: EdgeInsets.only(bottom: 10),
+                          padding: const EdgeInsets.only(bottom: 10),
                           child: Card(
                             elevation: 4,
                             child: Container(
-                              height: (200 / height) * height,
                               width: width,
                               padding: EdgeInsets.all(height * 0.01),
                               decoration: BoxDecoration(
-                                color: greyContainerColor,
+                                color: Theme.of(context).colorScheme.secondary,
                                 borderRadius: BorderRadius.circular(0.05),
                               ),
                               child: Column(
@@ -170,57 +203,60 @@ class _StallScreenState extends State<StallScreen> {
                                               height * 0.02),
                                           child: Image.network(
                                             imageUrl,
-                                            height: (130 / height) * height,
+                                            height: height * 0.2,
                                             width: double.infinity,
                                             fit: BoxFit.cover,
                                             errorBuilder:
                                                 (context, error, stackTrace) {
                                               return Container(
-                                                height: 100,
+                                                height: height * 0.2,
                                                 color: Colors.grey,
                                                 child: const Center(
-                                                    child: Text(
-                                                        "Failed to load image")),
+                                                  child: Text(
+                                                      "Failed to load image"),
+                                                ),
                                               );
                                             },
                                           ),
                                         )
                                       : Container(
-                                          height: 100,
+                                          height: height * 0.2,
                                           color: Colors.grey,
                                           child: const Center(
                                               child:
                                                   Text("No Image Available")),
                                         ),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 5,
                                   ),
                                   Text(
                                     stallId,
                                     style: TextStyle(
-                                        fontSize: (17 / height) * height,
-                                        fontWeight: FontWeight.w900,
-                                        color: Colors.black.withOpacity(0.8)),
+                                      fontSize: (17 / height) * height,
+                                      fontWeight: FontWeight.w900,
+                                    ),
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
+                                    height: 5,
+                                  ),
+                                  Text(
+                                    stallOpeningHours,
+                                    style: TextStyle(
+                                      fontSize: (14 / height) * height,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                  const SizedBox(
                                     height: 5,
                                   ),
                                   Row(
                                     children: [
-                                      Text(
-                                        "---, ----",
-                                        style: TextStyle(
-                                            fontSize: (12 / height) * height,
-                                            fontWeight: FontWeight.w400,
-                                            color:
-                                                Colors.black.withOpacity(0.8)),
-                                      ),
-                                      Spacer(),
                                       SvgPicture.asset(
-                                        "assets/images/dislike.svg",
+                                        "assets/images/like.svg",
+                                        height: height * 0.02,
                                       ),
                                       SizedBox(
-                                        width: width * 0.02,
+                                        width: width * 0.018,
                                       ),
                                       Text(
                                         thumbsUp != null
@@ -229,14 +265,16 @@ class _StallScreenState extends State<StallScreen> {
                                                 .padLeft(2, "0")
                                             : "00",
                                         style: TextStyle(
-                                            fontSize: height * 0.012,
-                                            color: Colors.black),
+                                          fontSize: height * 0.018,
+                                        ),
                                       ),
                                       SizedBox(
                                         width: width * 0.02,
                                       ),
                                       SvgPicture.asset(
-                                          "assets/images/like.svg"),
+                                        "assets/images/dislike.svg",
+                                        height: height * 0.018,
+                                      ),
                                       SizedBox(
                                         width: width * 0.02,
                                       ),
@@ -247,8 +285,8 @@ class _StallScreenState extends State<StallScreen> {
                                                 .padLeft(2, "0")
                                             : "00",
                                         style: TextStyle(
-                                            fontSize: height * 0.012,
-                                            color: Colors.black),
+                                          fontSize: height * 0.018,
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -258,75 +296,6 @@ class _StallScreenState extends State<StallScreen> {
                           ),
                         ),
                       );
-
-                      // ListTile(
-                      //   title: Text(
-                      //     stallId,
-                      //     style: const TextStyle(fontWeight: FontWeight.bold),
-                      //   ),
-                      //   subtitle: Column(
-                      //     crossAxisAlignment: CrossAxisAlignment.start,
-                      //     children: [
-                      //       const SizedBox(height: 8),
-                      // imageUrl != null && imageUrl.isNotEmpty
-                      //     ? Image.network(
-                      //         imageUrl,
-                      //         height: 100,
-                      //         width: double.infinity,
-                      //         fit: BoxFit.cover,
-                      //         errorBuilder: (context, error, stackTrace) {
-                      //           return Container(
-                      //             height: 100,
-                      //             color: Colors.grey,
-                      //             child: const Center(
-                      //                 child:
-                      //                     Text("Failed to load image")),
-                      //           );
-                      //         },
-                      //       )
-                      //     : Container(
-                      //         height: 100,
-                      //         color: Colors.grey,
-                      //         child: const Center(
-                      //             child: Text("No Image Available")),
-                      //       ),
-                      //       const SizedBox(height: 8),
-                      //       if (thumbsUp != null) Text("Likes: $thumbsUp"),
-                      //       if (thumbsDown != null)
-                      //         Text("Dislikes: $thumbsDown"),
-                      //       Row(
-                      //         children: [
-                      //           IconButton(
-                      //             icon: const Icon(Icons.thumb_up),
-                      //             onPressed: () {
-                      //               incrementThumbsUp(
-                      //                   categoryId, canteenId, stallId);
-                      //             },
-                      //           ),
-                      //           IconButton(
-                      //             icon: const Icon(Icons.thumb_down),
-                      //             onPressed: () {
-                      //               incrementThumbsDown(
-                      //                   categoryId, canteenId, stallId);
-                      //             },
-                      //           ),
-                      //         ],
-                      //       ),
-                      //     ],
-                      //   ),
-                      //   onTap: () {
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(
-                      //     builder: (context) => FoodScreen(
-                      //       categoryId: categoryId,
-                      //       canteenId: canteenId,
-                      //       stallId: stallId,
-                      //     ),
-                      //   ),
-                      // );
-                      //   },
-                      // );
                     },
                   ),
                 ),
@@ -336,102 +305,5 @@ class _StallScreenState extends State<StallScreen> {
         },
       ),
     );
-  }
-
-  void voteThumbsUp(String categoryId, String canteenId, String stallId,
-      String userId) async {
-    // Reference to the specific vote document for the user
-    DocumentReference voteDoc = FirebaseFirestore.instance
-        .collection('categories')
-        .doc(categoryId)
-        .collection('canteens')
-        .doc(canteenId)
-        .collection('stalls')
-        .doc(stallId)
-        .collection('votes')
-        .doc(userId);
-
-    // Check if the user has already voted
-    DocumentSnapshot docSnapshot = await voteDoc.get();
-
-    if (docSnapshot.exists) {
-      Map<String, dynamic> existingData =
-          docSnapshot.data() as Map<String, dynamic>;
-
-      // If user has already liked, do nothing; if disliked, update to like
-      if (existingData['vote'] == 'thumbsUp') return;
-      if (existingData['vote'] == 'thumbsDown') {
-        FirebaseFirestore.instance
-            .collection('categories')
-            .doc(categoryId)
-            .collection('canteens')
-            .doc(canteenId)
-            .collection('stalls')
-            .doc(stallId)
-            .update({
-          'thumbsUp': FieldValue.increment(1),
-          'thumbsDown': FieldValue.increment(-1),
-        });
-        await voteDoc.update({'vote': 'thumbsUp'});
-      }
-    } else {
-      // If no previous vote exists, register a thumbs up
-      FirebaseFirestore.instance
-          .collection('categories')
-          .doc(categoryId)
-          .collection('canteens')
-          .doc(canteenId)
-          .collection('stalls')
-          .doc(stallId)
-          .update({'thumbsUp': FieldValue.increment(1)});
-      await voteDoc.set({'vote': 'thumbsUp'});
-    }
-  }
-
-  void voteThumbsDown(String categoryId, String canteenId, String stallId,
-      String userId) async {
-    DocumentReference voteDoc = FirebaseFirestore.instance
-        .collection('categories')
-        .doc(categoryId)
-        .collection('canteens')
-        .doc(canteenId)
-        .collection('stalls')
-        .doc(stallId)
-        .collection('votes')
-        .doc(userId);
-
-    DocumentSnapshot docSnapshot = await voteDoc.get();
-
-    if (docSnapshot.exists) {
-      Map<String, dynamic> existingData =
-          docSnapshot.data() as Map<String, dynamic>;
-
-      // If user has already disliked, do nothing; if liked, update to dislike
-      if (existingData['vote'] == 'thumbsDown') return;
-      if (existingData['vote'] == 'thumbsUp') {
-        FirebaseFirestore.instance
-            .collection('categories')
-            .doc(categoryId)
-            .collection('canteens')
-            .doc(canteenId)
-            .collection('stalls')
-            .doc(stallId)
-            .update({
-          'thumbsUp': FieldValue.increment(-1),
-          'thumbsDown': FieldValue.increment(1),
-        });
-        await voteDoc.update({'vote': 'thumbsDown'});
-      }
-    } else {
-      FirebaseFirestore.instance
-          .collection('categories')
-          .doc(categoryId)
-          .collection('canteens')
-          .doc(canteenId)
-          .collection('stalls')
-          .doc(stallId)
-          .update({'thumbsDown': FieldValue.increment(1)});
-      await voteDoc.set({'vote': 'thumbsDown'});
-    }
   }
 }

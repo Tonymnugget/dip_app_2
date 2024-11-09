@@ -41,13 +41,11 @@ class AuthWrapper extends StatelessWidget {
           User? user = snapshot.data;
 
           // TODO: Remove the comment to activate verify email func
-          /*
           // Check if the user's email is verified
           if (user != null && !user.emailVerified) {
             // If the email is not verified, redirect to VerifyEmailPage
             return const VerifyEmailPage();
           }
-          */
 
           if (user != null) {
             return FutureBuilder<bool>(
