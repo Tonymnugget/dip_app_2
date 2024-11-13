@@ -1,5 +1,6 @@
 import 'package:dip_app_2/screens/login/login.dart';
 import 'package:dip_app_2/screens/signup/signup.dart';
+import 'package:dip_app_2/screens/user_authentication/forgot_password.dart';
 import 'package:flutter/material.dart';
 
 class LoginOrRegister extends StatefulWidget {
@@ -10,22 +11,51 @@ class LoginOrRegister extends StatefulWidget {
 }
 
 class _LoginOrRegisterState extends State<LoginOrRegister> {
-  // initially, show login page
+  // Initially, show login page
   bool showLoginPage = true;
+  bool showSignupPage = false;
+  bool showForgotPasswordPage = false;
 
-  // toggle between login and register page
-  void togglePages() {
+  // Method to toggle between pages
+  void toggleToSignupPage() {
     setState(() {
-      showLoginPage = !showLoginPage;
+      showLoginPage = false;
+      showSignupPage = true;
+      showForgotPasswordPage = false;
+    });
+  }
+
+  void toggleToLoginPage() {
+    setState(() {
+      showLoginPage = true;
+      showSignupPage = false;
+      showForgotPasswordPage = false;
+    });
+  }
+
+  void toggleToForgotPasswordPage() {
+    setState(() {
+      showLoginPage = false;
+      showSignupPage = false;
+      showForgotPasswordPage = true;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     if (showLoginPage) {
-      return LoginPage(onTap: togglePages);
+      return LoginPage(
+        onTapSignup: toggleToSignupPage,
+        onTapForgotPassword: toggleToForgotPasswordPage,
+      );
+    } else if (showSignupPage) {
+      return SignupPage(
+        onTap: toggleToLoginPage,
+      );
     } else {
-      return SignupPage(onTap: togglePages);
+      return ForgotPasswordPage(
+        onTap: toggleToLoginPage,
+      );
     }
   }
 }

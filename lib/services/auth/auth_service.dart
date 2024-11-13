@@ -97,6 +97,58 @@ class AuthService {
     return null;
   }
 
+  Future<void> sendPasswordResetEmail(String email) async {
+    // Define the RegExp to match 'username@e.ntu.edu.sg'
+    final RegExp emailRegex =
+        RegExp(r'^[A-Za-z0-9]+@e\.ntu\.edu\.sg$', caseSensitive: false);
+
+    // Trim email to avoid leading/trailing whitespaces
+    email = email.trim();
+
+    // Validate email format
+    if (!emailRegex.hasMatch(email)) {
+      Fluttertoast.showToast(
+        msg: 'Invalid email format',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.SNACKBAR,
+        backgroundColor: Colors.black54,
+        textColor: Colors.white,
+        fontSize: 14.0,
+      );
+      return;
+    }
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+      Fluttertoast.showToast(
+        msg: "A password link has been sent. Check your email.",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.SNACKBAR,
+        backgroundColor: Colors.black54,
+        textColor: Colors.white,
+        fontSize: 14.0,
+      );
+    } on FirebaseAuthException catch (e) {
+      String message = e.code;
+      if (e.code == 'invalid-email') {
+        message = 'invalid email';
+      }
+      if (e.code == 'missing-email') {
+        message = 'missing email';
+      }
+      if (e.code == 'user-not-found') {
+        message = 'user not found';
+      }
+      Fluttertoast.showToast(
+        msg: message,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.SNACKBAR,
+        backgroundColor: Colors.black54,
+        textColor: Colors.white,
+        fontSize: 14.0,
+      );
+    }
+  }
+
   Future<UserCredential?> signin(String email, password) async {
     try {
       // Sign user in

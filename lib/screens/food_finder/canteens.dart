@@ -1,4 +1,5 @@
 import 'package:dip_app_2/components/my_button_3.dart';
+import 'package:dip_app_2/components/my_navigationbar.dart';
 import 'package:dip_app_2/screens/food_finder/stall.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -39,6 +40,7 @@ class _CanteenScreenState extends State<CanteenScreen> {
           color: Theme.of(context).colorScheme.tertiary,
         ),
       ),
+      bottomNavigationBar: MyNavigationBar(),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('categories')

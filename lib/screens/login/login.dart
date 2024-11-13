@@ -4,9 +4,14 @@ import 'package:dip_app_2/services/auth/auth_service.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatelessWidget {
-  final void Function()? onTap;
+  final void Function()? onTapSignup;
+  final void Function()? onTapForgotPassword;
 
-  LoginPage({super.key, required this.onTap});
+  LoginPage({
+    super.key,
+    required this.onTapSignup,
+    required this.onTapForgotPassword,
+  });
 
   // text controllers
   final TextEditingController _emailController = TextEditingController();
@@ -81,11 +86,14 @@ class LoginPage extends StatelessWidget {
               ),
 
               // forgot password
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text("Forgot Password"),
-                ],
+              GestureDetector(
+                onTap: onTapForgotPassword,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text("Forgot Password"),
+                  ],
+                ),
               ),
 
               const SizedBox(height: 25),
@@ -104,7 +112,7 @@ class LoginPage extends StatelessWidget {
                 children: [
                   Text("Don't have an account?"),
                   GestureDetector(
-                    onTap: onTap,
+                    onTap: onTapSignup,
                     child: Text(
                       " Register Here",
                       style: TextStyle(
