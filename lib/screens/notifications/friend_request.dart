@@ -97,7 +97,10 @@ class FriendRequestPage extends StatelessWidget {
 
         return MyTile(
           text: senderData['name'] ?? 'Unknown', // Display sender's name
-          onTap: () {
+          onTap: () async {
+            // mark the request as read
+            await firestoreService
+                .markReceivedRequestsAsRead(senderData['uid']);
             Navigator.push(
               context,
               CustomNavigator.createSlideRoute(

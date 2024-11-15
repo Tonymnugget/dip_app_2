@@ -140,6 +140,70 @@ exports.sendFriendRequestNotification = onDocumentCreated(
   }
 );
 
+// sendAcceptedFriendRequestNotification Function
+exports.sendAcceptedFriendRequestNotification = onDocumentCreated(
+  {
+    region: 'asia-northeast1',
+    document: "users/{userId}/friends/{friendId}",
+  },
+  async (event) => {
+    try {
+      const acceptedRequestSnapshot = event.data;
+      const acceptedRequestData = acceptedRequestSnapshot.data();
+
+      console.log(`Accepted Request Data: ${JSON.stringify(acceptedRequestData)}`);
+
+      // Use event.params to get userId and friendId from the Firestore path
+      const receiverId = event.params.userId;
+      const friendId = event.params.friendId;
+
+      if (!receiverId || !friendId) {
+        console.error('Missing required friend fields');
+        return;
+      }
+
+      const firestore = getFirestore();
+      const messaging = getMessaging();
+
+      // Get the friend's name
+      const friendDoc = await firestore.collection("users").doc(friendId).get();
+      if (!friendDoc.exists) {
+        console.error(`No user found with ID ${friendId}`);
+        return;
+      }
+      const friendData = friendDoc.data();
+      const friendName = friendData.name || "Someone";
+
+      // Get the receiver's FCM token
+      const receiverDoc = await firestore.collection("users").doc(receiverId).get();
+      if (!receiverDoc.exists) {
+        console.error(`No user found with ID ${receiverId}`);
+        return;
+      }
+      const receiverData = receiverDoc.data();
+      const fcmToken = receiverData.fcmToken;
+
+      if (!fcmToken) {
+        console.error(`No FCM token for user with ID ${receiverId}`);
+        return;
+      }
+
+      const notification = {
+        notification: {
+          title: `You are now friends with ${friendName}!`,
+          body: `Start chatting and get to know each other better!`,
+        },
+        token: fcmToken,
+      };
+
+      const response = await messaging.send(notification);
+      console.log(`Accepted friend request notification sent successfully: ${response}`);
+    } catch (error) {
+      console.error("Error sending accepted friend request notification:", error);
+    }
+  }
+);
+
 // Create and deploy your first functions
 // https://firebase.google.com/docs/functions/get-started
 

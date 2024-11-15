@@ -1,4 +1,5 @@
 import 'package:dip_app_2/models/unread_messages.dart';
+import 'package:dip_app_2/models/unread_requests.dart';
 import 'package:dip_app_2/screens/food_finder/category.dart';
 import 'package:dip_app_2/screens/friends/friends.dart';
 import 'package:dip_app_2/screens/matching/filter.dart';
@@ -34,6 +35,9 @@ Future<void> main() async {
       ChangeNotifierProvider<UnreadMessagesModel>(
         create: (_) => UnreadMessagesModel(),
       ),
+      ChangeNotifierProvider<UnreadRequestsModel>(
+        create: (_) => UnreadRequestsModel(),
+      )
     ],
     child: const MyApp(),
   ));

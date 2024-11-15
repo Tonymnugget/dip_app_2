@@ -138,10 +138,27 @@ class FirestoreService {
           .doc(currentUser.uid)
           .set({
         'senderId': currentUser.uid,
+        'unread': true,
         'timestamp': FieldValue.serverTimestamp(),
       });
     } catch (e) {
       print('Error sending friend request: $e');
+    }
+  }
+
+  // Function to mark received friend requests as read
+  Future<void> markReceivedRequestsAsRead(String senderId) async {
+    // get current user id
+    final currentUserId = authService.getCurrentUser()!.uid;
+    try {
+      await _firestore
+          .collection('users')
+          .doc(currentUserId)
+          .collection('receivedRequests')
+          .doc(senderId)
+          .update({'unread': false});
+    } catch (e) {
+      print('unable to update the received Requests');
     }
   }
 
