@@ -9,18 +9,18 @@ class LikeDislikeButtons extends StatefulWidget {
   final String currentUserId;
 
   const LikeDislikeButtons({
-    Key? key,
+    super.key,
     required this.categoryId,
     required this.canteenId,
     required this.stallId,
     required this.currentUserId,
-  }) : super(key: key);
+  });
 
   @override
-  _LikeDislikeButtonsState createState() => _LikeDislikeButtonsState();
+  LikeDislikeButtonsState createState() => LikeDislikeButtonsState();
 }
 
-class _LikeDislikeButtonsState extends State<LikeDislikeButtons> {
+class LikeDislikeButtonsState extends State<LikeDislikeButtons> {
   bool like = false;
   bool dislike = false;
 

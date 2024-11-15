@@ -19,7 +19,6 @@ class _FriendsPageState extends State<FriendsPage> {
   // Auth service instances
   final AuthService authService = AuthService();
   final ChatService chatService = ChatService();
-  Future<List<String>>? _blockedUsersFuture;
   String? currentUserId;
 
   @override
@@ -28,7 +27,6 @@ class _FriendsPageState extends State<FriendsPage> {
     final currentUser = authService.getCurrentUser();
     if (currentUser != null) {
       currentUserId = currentUser.uid;
-      _blockedUsersFuture = _fetchBlockedUsers(currentUserId!);
     }
   }
 
@@ -110,20 +108,19 @@ class _FriendsPageState extends State<FriendsPage> {
     return latestMessages;
   }
 
-  Future<List<String>> _fetchBlockedUsers(String userId) async {
-    final snapshot = await FirebaseFirestore.instance
+  Stream<List<String>> _blockedUsersStream() {
+    return FirebaseFirestore.instance
         .collection('users')
-        .doc(userId)
+        .doc(currentUserId)
         .collection('blockedUsers')
-        .get();
-
-    return snapshot.docs.map((doc) => doc.id).toList();
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => doc.id).toList());
   }
 
   // Build a list of friends and their latest messages, excluding blocked users
   Widget _buildFriendsList() {
-    return FutureBuilder<List<String>>(
-      future: _blockedUsersFuture,
+    return StreamBuilder<List<String>>(
+      stream: _blockedUsersStream(),
       builder: (context, blockedUsersSnapshot) {
         if (blockedUsersSnapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -169,11 +166,22 @@ class _FriendsPageState extends State<FriendsPage> {
               );
             }
 
-            // Filter out blocked user IDs from friend IDs
-            List<String> friendIds = friendsSnapshot.data!.docs
-                .map((doc) => doc['friendId'] as String)
-                .where((friendId) => !blockedUserIds.contains(friendId))
-                .toList();
+            // Process friendsSnapshot to get friendIds and exclude blocked users and those blocked by friend
+            List<String> friendIds = [];
+
+            for (var doc in friendsSnapshot.data!.docs) {
+              String friendId = doc['friendId'] as String;
+              bool blockedByFriend = doc['blockedByFriend'] as bool? ?? false;
+              if (!blockedByFriend && !blockedUserIds.contains(friendId)) {
+                friendIds.add(friendId);
+              }
+            }
+
+            if (friendIds.isEmpty) {
+              return const Center(
+                child: Text('No friends found'),
+              );
+            }
 
             // Fetch friends' data
             return FutureBuilder<QuerySnapshot>(
@@ -300,7 +308,6 @@ class _FriendsPageState extends State<FriendsPage> {
       onTap: () async {
         // Mark messages as read
         await chatService.markMessagesAsRead(chatRoomID, currentUserId!);
-
         // Navigate to chat page
         Navigator.push(
           context,
@@ -313,10 +320,6 @@ class _FriendsPageState extends State<FriendsPage> {
             ),
           ),
         );
-        // Re-fetch data when returning from ChatPage
-        setState(() {
-          _blockedUsersFuture = _fetchBlockedUsers(currentUserId!);
-        });
       },
       leading: friendData['imageUrl'] != null
           ? CircleAvatar(

@@ -8,19 +8,6 @@ class FirestoreService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final AuthService authService = AuthService();
 
-  // TODO if the blockbelow not needed delete
-  /* 
-  // Add a new user to Firestore
-  Future<void> addUser(Map<String, dynamic> userData) async {
-    await _firestore.collection('users').add(userData);
-  }
-
-  // Stream of all users for real-time updates
-  Stream<QuerySnapshot> getUsersStream() {
-    return _firestore.collection('users').snapshots();
-  }
-  */
-
   // In FirestoreService
   Future<String> getCurrentUserName() async {
     final currentUser = authService.getCurrentUser();
@@ -79,18 +66,25 @@ class FirestoreService {
     Query query = _firestore.collection('users');
 
     // Add filters based on the provided criteria
-    if (gender != null && gender != "NA")
+    if (gender != null && gender != "NA") {
       query = query.where('gender', isEqualTo: gender);
-    if (course != null && course != "NA")
+    }
+
+    if (course != null && course != "NA") {
       query = query.where('course', isEqualTo: course);
-    if (year != null && year != "NA")
+    }
+    if (year != null && year != "NA") {
       query = query.where('year', isEqualTo: year);
-    if (hall != null && hall != "NA")
+    }
+    if (hall != null && hall != "NA") {
       query = query.where('hall', isEqualTo: hall);
-    if (studentType != null && studentType != "NA")
+    }
+    if (studentType != null && studentType != "NA") {
       query = query.where('studentType', isEqualTo: studentType);
-    if (country != null && country != "NA")
+    }
+    if (country != null && country != "NA") {
       query = query.where('country', isEqualTo: country);
+    }
 
     // Handle multiple selected languages
     if (selectedLanguages != null && selectedLanguages.isNotEmpty) {
@@ -220,6 +214,7 @@ class FirestoreService {
         'friendId': senderId,
         'timestamp': FieldValue.serverTimestamp(),
         'chatFrequency': 0,
+        'blockedByFriend': false,
       });
 
       // Add current user to sender's 'friends' collection
@@ -232,6 +227,7 @@ class FirestoreService {
         'friendId': currentUserId,
         'timestamp': FieldValue.serverTimestamp(),
         'chatFrequency': 0,
+        'blockedByFriend': false,
       });
 
       // Remove the friend request from the current user's 'receivedRequests'
@@ -328,6 +324,16 @@ class FirestoreService {
         .collection('blockedUsers')
         .doc(userId)
         .set({});
+
+    // update the blockedByFriend condition for the blockedUser's friend document
+    await _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('friends')
+        .doc(currentUserId)
+        .update({
+      'blockedByFriend': true,
+    });
   }
 
   // Unblock user
@@ -342,6 +348,16 @@ class FirestoreService {
         .collection('blockedUsers')
         .doc(blockedUserId)
         .delete();
+
+    // update the blockedByFriend condition for the blockedUser's friend document
+    await _firestore
+        .collection('users')
+        .doc(blockedUserId)
+        .collection('friends')
+        .doc(currentUserId)
+        .update({
+      'blockedByFriend': false,
+    });
   }
 
   // Get list of blocked user ids
@@ -357,6 +373,19 @@ class FirestoreService {
 
     // return as a list of uids
     return snapshot.docs.map((doc) => doc.id).toList();
+  }
+
+  // Get stream of blocked user ids
+  Stream<List<String>> getBlockedUidsStreamFromFirebase() {
+    // get current user id
+    final currentUserId = authService.getCurrentUser()!.uid;
+
+    return _firestore
+        .collection('users')
+        .doc(currentUserId)
+        .collection('blockedUsers')
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => doc.id).toList());
   }
 
   // increase the like vote for that particular stall and decrease the dislike vote if disliked before

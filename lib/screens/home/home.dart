@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dip_app_2/components/my_drawer.dart';
 import 'package:dip_app_2/components/my_navigationbar.dart';
 import 'package:dip_app_2/screens/notifications/notifcations.dart';
 import 'package:dip_app_2/services/auth/auth_service.dart';
 import 'package:dip_app_2/services/database/firestore_service.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,7 +13,6 @@ class HomePage extends StatefulWidget {
   @override
   State<HomePage> createState() => _HomePageState();
 }
-// TODO report user, delete chat, unfriend,
 
 class _HomePageState extends State<HomePage> {
   // get auth & firestore services
@@ -25,6 +26,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _loadUserData();
+    setupPushNotifications();
   }
 
   Future<void> _loadUserData() async {
@@ -35,6 +37,30 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         userData = data;
       });
+    }
+  }
+
+  // helper function for requesting permission
+  void setupPushNotifications() async {
+    // get instance of FirebaseMessaging
+    final fcm = FirebaseMessaging.instance;
+
+    // called first, ask the user for permission to receive and handle push notifications
+    // returns a future can be fine tune to which type to receive
+    await fcm.requestPermission();
+
+    // yields the address of the device on which the app is running
+    // necessary to target specific devices for notifcaitons
+    final token = await fcm.getToken();
+
+    if (token != null) {
+      final currentUserId = authService.getCurrentUser()!.uid;
+
+      // save the token in firestore
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUserId)
+          .update({'fcmToken': token});
     }
   }
 

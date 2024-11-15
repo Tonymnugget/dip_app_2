@@ -37,8 +37,8 @@ class _FriendsListTileState extends State<FriendsListTile> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<String>>(
-      future: firestoreService.getBlockedUidsFromFirebase(),
+    return StreamBuilder<List<String>>(
+      stream: firestoreService.getBlockedUidsStreamFromFirebase(),
       builder: (context, blockedUsersSnapshot) {
         if (blockedUsersSnapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -136,46 +136,50 @@ class _FriendsListTileState extends State<FriendsListTile> {
                         ),
                         child: Row(
                           children: [
-                            ...users.map((friendData) {
-                              return Padding(
-                                padding: const EdgeInsets.only(right: 8.0),
-                                child: GestureDetector(
-                                  onTap: () => _navigateToChatPage(
-                                    context,
-                                    friendData.id,
-                                    friendData['email'] ?? '',
-                                    friendData['name'] ?? '',
-                                    friendData['imageUrl'] ?? '',
+                            ...users.map(
+                              (friendData) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(right: 8.0),
+                                  child: GestureDetector(
+                                    onTap: () => _navigateToChatPage(
+                                      context,
+                                      friendData.id,
+                                      friendData['email'] ?? '',
+                                      friendData['name'] ?? '',
+                                      friendData['imageUrl'] ?? '',
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        friendData['imageUrl'] != null
+                                            ? CircleAvatar(
+                                                radius: 28,
+                                                backgroundImage: NetworkImage(
+                                                    friendData['imageUrl']),
+                                                backgroundColor:
+                                                    Theme.of(context)
+                                                        .colorScheme
+                                                        .primary,
+                                              )
+                                            : CircleAvatar(
+                                                radius: 28,
+                                                backgroundColor:
+                                                    Theme.of(context)
+                                                        .colorScheme
+                                                        .primary,
+                                                child: Icon(Icons.person),
+                                              ),
+                                        const SizedBox(height: 5),
+                                        Text(
+                                          friendData['name'] ??
+                                              friendData['email'],
+                                          style: const TextStyle(fontSize: 12),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                  child: Column(
-                                    children: [
-                                      friendData['imageUrl'] != null
-                                          ? CircleAvatar(
-                                              radius: 28,
-                                              backgroundImage: NetworkImage(
-                                                  friendData['imageUrl']),
-                                              backgroundColor: Theme.of(context)
-                                                  .colorScheme
-                                                  .primary,
-                                            )
-                                          : CircleAvatar(
-                                              radius: 28,
-                                              backgroundColor: Theme.of(context)
-                                                  .colorScheme
-                                                  .primary,
-                                              child: Icon(Icons.person),
-                                            ),
-                                      const SizedBox(height: 5),
-                                      Text(
-                                        friendData['name'] ??
-                                            friendData['email'],
-                                        style: const TextStyle(fontSize: 12),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            }).toList(),
+                                );
+                              },
+                            ),
                             Spacer(),
                             const Icon(Icons.arrow_forward_ios),
                           ],

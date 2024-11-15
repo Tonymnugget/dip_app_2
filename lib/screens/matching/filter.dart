@@ -11,10 +11,10 @@ class FilterPage extends StatefulWidget {
   const FilterPage({super.key});
 
   @override
-  _FilterPageState createState() => _FilterPageState();
+  FilterPageState createState() => FilterPageState();
 }
 
-class _FilterPageState extends State<FilterPage> {
+class FilterPageState extends State<FilterPage> {
   FirestoreService firestoreService = FirestoreService();
   List<Map<String, dynamic>> filteredUsers = [];
 

@@ -1,6 +1,6 @@
-import 'package:dip_app_2/screens/login/login.dart';
-import 'package:dip_app_2/screens/signup/signup.dart';
 import 'package:dip_app_2/screens/user_authentication/forgot_password.dart';
+import 'package:dip_app_2/screens/user_authentication/login.dart';
+import 'package:dip_app_2/screens/user_authentication/signup.dart';
 import 'package:flutter/material.dart';
 
 class LoginOrRegister extends StatefulWidget {

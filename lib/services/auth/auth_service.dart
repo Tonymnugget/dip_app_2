@@ -23,7 +23,6 @@ class AuthService {
 
     // Validate email format
     if (!emailRegex.hasMatch(email)) {
-      print('Invalid email format: $email'); // Debugging statement
       Fluttertoast.showToast(
         msg: 'Invalid email format',
         toastLength: Toast.LENGTH_LONG,
@@ -54,8 +53,6 @@ class AuthService {
         await userCredential.user!.reload();
         User? updatedUser = _auth.currentUser;
         final uid = updatedUser?.uid;
-
-        print("Updated User UID after reload: $uid");
 
         // Ensure uid is not null
         if (uid != null) {

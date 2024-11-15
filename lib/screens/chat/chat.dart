@@ -6,7 +6,7 @@ import 'package:dip_app_2/screens/matching/user_details.dart';
 import 'package:dip_app_2/services/auth/auth_service.dart';
 import 'package:dip_app_2/services/chat/chat_service.dart';
 import 'package:dip_app_2/services/database/firestore_service.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -53,35 +53,9 @@ class _ChatPageState extends State<ChatPage> {
   // for textfield focus => if a lot of text, next message send/receive auto scroll
   FocusNode myFocusNode = FocusNode();
 
-  // helper function for requesting permission
-  void setupPushNotifications() async {
-    // get instance of FirebaseMessaging
-    final fcm = FirebaseMessaging.instance;
-
-    // called first, ask the user for permission to receive and handle push notifications
-    // returns a future can be fine tune to which type to receive
-    await fcm.requestPermission();
-
-    // yields the address of the device on which the app is running
-    // necessary to target specific devices for notifcaitons
-    final token = await fcm.getToken();
-
-    if (token != null) {
-      final currentUserId = authService.getCurrentUser()!.uid;
-
-      // save the token in firestore
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(currentUserId)
-          .update({'fcmToken': token});
-    }
-  }
-
   @override
   void initState() {
     super.initState();
-
-    setupPushNotifications();
 
     // add listener to focus node
     myFocusNode.addListener(() {

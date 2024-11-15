@@ -1,7 +1,7 @@
 import 'package:dip_app_2/screens/home/home.dart';
 import 'package:dip_app_2/screens/profile/profile_edit.dart';
+import 'package:dip_app_2/screens/user_authentication/verify_email.dart';
 import 'package:dip_app_2/services/auth/login_or_register.dart';
-import 'package:dip_app_2/screens/verification/verification.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -42,10 +42,10 @@ class AuthWrapper extends StatelessWidget {
 
           // TODO: Remove the comment to activate verify email func
           // Check if the user's email is verified
-          if (user != null && !user.emailVerified) {
-            // If the email is not verified, redirect to VerifyEmailPage
-            return const VerifyEmailPage();
-          }
+          // if (user != null && !user.emailVerified) {
+          //   // If the email is not verified, redirect to VerifyEmailPage
+          //   return const VerifyEmailPage();
+          // }
 
           if (user != null) {
             return FutureBuilder<bool>(

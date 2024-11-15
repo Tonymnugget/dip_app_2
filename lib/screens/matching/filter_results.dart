@@ -59,8 +59,7 @@ class FilterResultsPage extends StatelessWidget {
     final currentUserEmail = _authService.getCurrentUser()?.email;
     if (currentUserEmail != null && userData["email"] != currentUserEmail) {
       // Ensure name and imageUrl are not null
-      final userName = userData["name"] ??
-          'Unknown User'; // TODO: when user don't fill the name textfield when registering run into error, does not display all the users.
+      final userName = userData["name"] ?? 'Unknown User';
       final imageUrl = userData['imageUrl'];
 
       return MyTile(
