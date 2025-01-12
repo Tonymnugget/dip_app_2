@@ -171,7 +171,10 @@ class _FriendsPageState extends State<FriendsPage> {
 
             for (var doc in friendsSnapshot.data!.docs) {
               String friendId = doc['friendId'] as String;
-              bool blockedByFriend = doc['blockedByFriend'] as bool? ?? false;
+              // Use doc.data() to get a Map and safely check if 'blockedByFriend' exists
+              bool blockedByFriend = (doc.data()
+                      as Map<String, dynamic>)['blockedByFriend'] as bool? ??
+                  false;
               if (!blockedByFriend && !blockedUserIds.contains(friendId)) {
                 friendIds.add(friendId);
               }

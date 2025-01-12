@@ -50,6 +50,7 @@ dependencies:
   flutter_svg: ^2.0.13
   flutter_native_splash: ^2.4.2
   flutter_launcher_icons: ^0.14.1
+  firebase_admin: ^0.3.0
 
 dev_dependencies:
   flutter_test:

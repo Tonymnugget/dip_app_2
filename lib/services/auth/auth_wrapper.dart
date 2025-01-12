@@ -10,13 +10,26 @@ class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
 
   Future<bool> _checkProfileComplete(String uid) async {
-    // Query Firestore to check if profile is complete
-    final doc =
-        await FirebaseFirestore.instance.collection('users').doc(uid).get();
-    if (doc.exists && doc.data() != null) {
-      return doc.data()!['profileComplete'] ==
-          true; // Check profileComplete field
+    // Maximum number of retries
+    const int maxRetries = 5;
+    // Delay between retries in milliseconds
+    const int delayBetweenRetries = 1000;
+
+    int retryCount = 0;
+    while (retryCount < maxRetries) {
+      // Query Firestore to check if profile is complete
+      final doc =
+          await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      if (doc.exists && doc.data() != null) {
+        return doc.data()!['profileComplete'] ==
+            true; // Check profileComplete field
+      } else {
+        // If the document doesn't exist yet, wait and retry
+        await Future.delayed(Duration(milliseconds: delayBetweenRetries));
+        retryCount++;
+      }
     }
+    // If the document still doesn't exist after retries, consider profile incomplete
     return false;
   }
 
@@ -40,12 +53,11 @@ class AuthWrapper extends StatelessWidget {
           // User is logged in
           User? user = snapshot.data;
 
-          // TODO: Remove the comment to activate verify email func
           // Check if the user's email is verified
-          // if (user != null && !user.emailVerified) {
-          //   // If the email is not verified, redirect to VerifyEmailPage
-          //   return const VerifyEmailPage();
-          // }
+          if (user != null && !user.emailVerified) {
+            // If the email is not verified, redirect to VerifyEmailPage
+            return const VerifyEmailPage();
+          }
 
           if (user != null) {
             return FutureBuilder<bool>(
@@ -64,6 +76,10 @@ class AuthWrapper extends StatelessWidget {
                     // If profile is incomplete, go to profile creation page
                     return ProfileEditPage();
                   }
+                } else if (profileSnapshot.hasError) {
+                  // Handle any errors
+                  return Center(
+                      child: Text('An error occurred. Please try again.'));
                 } else {
                   // In case something goes wrong, fallback to login/register screen
                   return const LoginOrRegister();

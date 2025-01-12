@@ -161,9 +161,12 @@ class _VerifyEmailState extends State<VerifyEmailPage> {
                     minimumSize: const Size.fromHeight(50),
                   ),
                   icon: const Icon(Icons.email, size: 32),
-                  label: const Text(
+                  label: Text(
                     'Resend Email',
-                    style: TextStyle(fontSize: 24),
+                    style: TextStyle(
+                      fontSize: 24,
+                      color: Theme.of(context).colorScheme.onSecondaryContainer,
+                    ),
                   ),
                   onPressed: canResendEmail ? sendVerificationEmail : null,
                 ),
@@ -173,9 +176,12 @@ class _VerifyEmailState extends State<VerifyEmailPage> {
                     minimumSize: const Size.fromHeight(50),
                     backgroundColor: Theme.of(context).colorScheme.secondary,
                   ),
-                  child: const Text(
+                  child: Text(
                     'Cancel',
-                    style: TextStyle(fontSize: 24),
+                    style: TextStyle(
+                      fontSize: 24,
+                      color: Theme.of(context).colorScheme.onSecondaryContainer,
+                    ),
                   ),
                   onPressed: () => FirebaseAuth.instance.signOut(),
                 ),

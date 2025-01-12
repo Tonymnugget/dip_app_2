@@ -15,6 +15,7 @@ ThemeData darkMode = ThemeData(
     onSecondaryContainer: Colors.white,
     tertiary: Colors.grey.shade100,
     tertiaryContainer: Colors.grey.shade700,
+    tertiaryFixed: Colors.grey.shade700,
     inversePrimary: Colors.grey.shade700,
   ),
 );

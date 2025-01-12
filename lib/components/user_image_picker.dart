@@ -4,58 +4,47 @@ import 'package:image_picker/image_picker.dart';
 
 class UserImagePicker extends StatefulWidget {
   final void Function(File? pickedImage) onPickImage;
-  final String? exisitingImageUrl;
+  final String? existingImageUrl;
+  final File? selectedImage;
 
-  const UserImagePicker(
-      {super.key,
-      required this.onPickImage,
-      required this.exisitingImageUrl,
-      String? existingImageUrl});
+  const UserImagePicker({
+    super.key,
+    required this.onPickImage,
+    required this.existingImageUrl,
+    this.selectedImage,
+  });
 
   @override
   State<UserImagePicker> createState() => _UserImagePickerState();
 }
 
 class _UserImagePickerState extends State<UserImagePicker> {
-  // file not necessarily set, may be null
-  File? _pickedImageFile;
-
   void _pickImage(ImageSource source) async {
-    // pickImage op returns an Xfile and is assigned to var called pickedImage
     final pickedImage = await ImagePicker().pickImage(
       source: source,
       imageQuality: 100,
       maxWidth: 150,
     );
 
-    // if no image is selected, return without setting the state
     if (pickedImage != null) {
-      // ensure that the build method is triggered again to preview image
-      // create a file object based on the path
-      setState(() {
-        _pickedImageFile = File(pickedImage.path);
-      });
-
-      // after preview, call widget
-      widget.onPickImage(_pickedImageFile!);
+      widget.onPickImage(File(pickedImage.path));
     }
   }
 
-  // Method to show action sheet with options for Camera and Gallery
   void _showImageSourceActionSheet() {
     showModalBottomSheet(
       context: context,
       builder: (ctx) => Container(
-        height: 120,
         padding: const EdgeInsets.all(16),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               'Choose Image Source',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.primary,
+                color: Theme.of(context).colorScheme.onSecondaryContainer,
               ),
             ),
             const SizedBox(height: 16),
@@ -63,23 +52,40 @@ class _UserImagePickerState extends State<UserImagePicker> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                  ),
                   onPressed: () {
                     Navigator.of(ctx).pop(); // Close the bottom sheet
                     _pickImage(ImageSource.camera);
                   },
                   icon: const Icon(Icons.camera),
-                  label: const Text('Camera'),
+                  label: Text(
+                    'Camera',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSecondaryContainer,
+                    ),
+                  ),
                 ),
                 ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                  ),
                   onPressed: () {
                     Navigator.of(ctx).pop(); // Close the bottom sheet
                     _pickImage(ImageSource.gallery);
                   },
                   icon: const Icon(Icons.image),
-                  label: const Text('Gallery'),
+                  label: Text(
+                    'Gallery',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSecondaryContainer,
+                    ),
+                  ),
                 ),
               ],
             ),
+            const SizedBox(height: 16),
           ],
         ),
       ),
@@ -95,22 +101,23 @@ class _UserImagePickerState extends State<UserImagePicker> {
           child: CircleAvatar(
             radius: 65,
             backgroundColor: Colors.grey,
-            foregroundImage: _pickedImageFile != null
-                ? FileImage(_pickedImageFile!)
-                : (widget.exisitingImageUrl != null
-                    ? NetworkImage(widget.exisitingImageUrl!)
+            foregroundImage: widget.selectedImage != null
+                ? FileImage(widget.selectedImage!)
+                : (widget.existingImageUrl != null
+                    ? NetworkImage(widget.existingImageUrl!)
                     : null),
-            child: _pickedImageFile == null && widget.exisitingImageUrl == null
-                ? const Icon(Icons.person, size: 40)
-                : null,
+            child:
+                widget.selectedImage == null && widget.existingImageUrl == null
+                    ? const Icon(Icons.person, size: 40)
+                    : null,
           ),
         ),
         Positioned(
-          top: 0,
-          right: 0,
+          top: 5,
+          right: 5,
           child: CircleAvatar(
-            radius: 18,
-            backgroundColor: Colors.black.withOpacity(0.6),
+            radius: 14,
+            backgroundColor: Colors.black.withOpacity(0.3),
             child: Icon(
               Icons.camera_alt,
               color: Colors.white,
@@ -122,123 +129,3 @@ class _UserImagePickerState extends State<UserImagePicker> {
     );
   }
 }
-
-/*
-import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-
-class UserImagePicker extends StatefulWidget {
-  final void Function(File? pickedImage) onPickImage;
-  final String? exisitingImageUrl;
-
-  const UserImagePicker(
-      {super.key,
-      required this.onPickImage,
-      required this.exisitingImageUrl,
-      String? existingImageUrl});
-
-  @override
-  State<UserImagePicker> createState() => _UserImagePickerState();
-}
-
-class _UserImagePickerState extends State<UserImagePicker> {
-  // file not necessarily set, may be null
-  File? _pickedImageFile;
-
-  void _pickImage(ImageSource source) async {
-    // pickImage op returns an Xfile and is assigned to var called pickedImage
-    final pickedImage = await ImagePicker().pickImage(
-      source: source,
-      imageQuality: 100,
-      maxWidth: 150,
-    );
-
-    // if no image is selected, return without setting the state
-    if (pickedImage != null) {
-      // ensure that the build method is triggered again to preview image
-      // create a file object based on the path
-      setState(() {
-        _pickedImageFile = File(pickedImage.path);
-      });
-
-      // after preview, call widget
-      widget.onPickImage(_pickedImageFile!);
-    }
-  }
-
-  // Method to show action sheet with options for Camera and Gallery
-  void _showImageSourceActionSheet() {
-    showModalBottomSheet(
-      context: context,
-      builder: (ctx) => Container(
-        height: 120,
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Text(
-              'Choose Image Source',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.of(ctx).pop(); // Close the bottom sheet
-                    _pickImage(ImageSource.camera);
-                  },
-                  icon: const Icon(Icons.camera),
-                  label: const Text('Camera'),
-                ),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.of(ctx).pop(); // Close the bottom sheet
-                    _pickImage(ImageSource.gallery);
-                  },
-                  icon: const Icon(Icons.image),
-                  label: const Text('Gallery'),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        CircleAvatar(
-          radius: 40,
-          backgroundColor: Colors.grey,
-          foregroundImage: _pickedImageFile != null
-              ? FileImage(_pickedImageFile!)
-              : (widget.exisitingImageUrl != null
-                  ? NetworkImage(widget.exisitingImageUrl!)
-                  : null),
-          child: _pickedImageFile == null && widget.exisitingImageUrl == null
-              ? const Icon(Icons.person, size: 40)
-              : null,
-        ),
-        TextButton.icon(
-          onPressed: _showImageSourceActionSheet,
-          icon: const Icon(Icons.image),
-          label: Text(
-            'Add Image',
-            style:
-                TextStyle(color: Theme.of(context).colorScheme.inversePrimary),
-          ),
-        )
-      ],
-    );
-  }
-}
-*/

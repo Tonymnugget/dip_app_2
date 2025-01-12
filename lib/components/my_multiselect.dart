@@ -63,14 +63,24 @@ class MyMultiSelectState extends State<MyMultiSelect> {
                         tempSelectedValues); // Pass the updated values back to parent
                     Navigator.of(ctx).pop();
                   },
-                  child: const Text("OK"),
+                  child: Text(
+                    "OK",
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSecondaryContainer,
+                    ),
+                  ),
                 ),
                 TextButton(
                   onPressed: () {
                     widget.onSelectionChanged([]); // Clear all selections
                     Navigator.of(ctx).pop();
                   },
-                  child: const Text("Clear"),
+                  child: Text(
+                    "Clear",
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSecondaryContainer,
+                    ),
+                  ),
                 ),
               ],
             );

@@ -125,6 +125,15 @@ class ProfilePage extends StatelessWidget {
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
+
+                                    Text(
+                                      '${profileData['country']}',
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                     const SizedBox(height: 10),
 
                                     // Bio

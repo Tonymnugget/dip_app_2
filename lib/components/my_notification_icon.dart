@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dip_app_2/helper/navigator_animation.dart';
 
-class WechatIcon extends StatelessWidget {
-  const WechatIcon({super.key});
+class MyNotificationIcon extends StatelessWidget {
+  const MyNotificationIcon({super.key});
   @override
   Widget build(BuildContext context) {
     final unreadCount = context.watch<UnreadRequestsModel>().unreadCount;

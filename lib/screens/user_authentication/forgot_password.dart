@@ -104,9 +104,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   minimumSize: const Size.fromHeight(50),
                 ),
                 icon: const Icon(Icons.email, size: 32),
-                label: const Text(
+                label: Text(
                   'Send reset password link',
-                  style: TextStyle(fontSize: 24),
+                  style: TextStyle(
+                    fontSize: 24,
+                    color: Theme.of(context).colorScheme.onSecondaryContainer,
+                  ),
                 ),
                 onPressed: sendPasswordResetEmail,
               ),
@@ -117,9 +120,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   backgroundColor: Theme.of(context).colorScheme.secondary,
                 ),
                 onPressed: widget.onTap,
-                child: const Text(
+                child: Text(
                   'Cancel',
-                  style: TextStyle(fontSize: 24),
+                  style: TextStyle(
+                    fontSize: 24,
+                    color: Theme.of(context).colorScheme.onSecondaryContainer,
+                  ),
                 ),
               ),
             ],

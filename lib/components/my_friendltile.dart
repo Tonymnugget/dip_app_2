@@ -103,7 +103,7 @@ class _FriendsListTileState extends State<FriendsListTile> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Friends(${friendIds.length})', // Show actual friend count
+                      'Friends(${unblockedFriendsData.length})', // Show actual friend count
                       style: TextStyle(
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.bold,

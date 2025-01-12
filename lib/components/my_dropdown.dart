@@ -67,7 +67,7 @@ class MyDropDownState extends State<MyDropDown> {
               child: DropdownButtonFormField<String>(
                 menuMaxHeight: 300,
                 iconSize: 30,
-                dropdownColor: Color.fromARGB(255, 217, 217, 217),
+                dropdownColor: Theme.of(context).colorScheme.tertiaryFixed,
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Theme.of(context).colorScheme.secondary,

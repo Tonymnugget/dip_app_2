@@ -235,6 +235,14 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+                      Text(
+                        '${widget.userData['country']}',
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       const SizedBox(height: 5),
 
                       // Bio

@@ -23,9 +23,7 @@ class SettingsPage extends StatelessWidget {
         backgroundColor: Theme.of(context).colorScheme.primary,
         centerTitle: true,
         iconTheme: IconThemeData(
-          color: Theme.of(context)
-              .colorScheme
-              .tertiary, // Change the back arrow color to white
+          color: Theme.of(context).colorScheme.tertiary,
         ),
       ),
       bottomNavigationBar: MyNavigationBar(),
@@ -42,22 +40,41 @@ class SettingsPage extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SwitchListTile(
-              title: Text('Dark Mode'),
-              value: themeProvider.themeMode == ThemeMode.dark,
-              onChanged: (bool isDarkMode) {
-                if (isDarkMode) {
-                  themeProvider.toggleTheme(true);
-                } else {
-                  themeProvider.toggleTheme(false);
-                }
-              },
+            SizedBox(height: 10), // Add spacing between items
+            // Dark Mode Toggle
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: ListTile(
+                title: Text('Dark Mode'),
+                trailing: Switch(
+                  value: themeProvider.themeMode == ThemeMode.dark,
+                  onChanged: (bool isDarkMode) {
+                    if (isDarkMode) {
+                      themeProvider.toggleTheme(true);
+                    } else {
+                      themeProvider.toggleTheme(false);
+                    }
+                  },
+                ),
+                onTap: null, // Disables tap interaction
+              ),
             ),
-            ListTile(
-              title: Text('Use System Theme'),
-              onTap: () {
-                themeProvider.useSystemTheme();
-              },
+            SizedBox(height: 10), // Add spacing between items
+            // Use System Theme
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: ListTile(
+                title: Text('Use System Theme'),
+                onTap: () {
+                  themeProvider.useSystemTheme();
+                },
+              ),
             ),
           ],
         ),

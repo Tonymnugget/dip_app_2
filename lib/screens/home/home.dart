@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dip_app_2/components/my_drawer.dart';
 import 'package:dip_app_2/components/my_navigationbar.dart';
-import 'package:dip_app_2/screens/notifications/notifcations.dart';
+import 'package:dip_app_2/components/my_notification_icon.dart';
 import 'package:dip_app_2/services/auth/auth_service.dart';
 import 'package:dip_app_2/services/database/firestore_service.dart';
 import 'package:flutter/material.dart';
@@ -86,20 +86,7 @@ class _HomePageState extends State<HomePage> {
         ),
 
         // NotificationPage
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.favorite),
-            tooltip: 'Notifcations',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => NotificationPage(),
-                ),
-              );
-            },
-          ),
-        ],
+        actions: [MyNotificationIcon()],
       ),
       bottomNavigationBar: MyNavigationBar(),
       drawer: const MyDrawer(),

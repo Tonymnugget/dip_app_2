@@ -13,7 +13,8 @@ class AuthService {
     return _auth.currentUser;
   }
 
-  Future<UserCredential?> signup(String name, email, password) async {
+  Future<UserCredential?> signup(
+      String name, String email, String password) async {
     // Define the RegExp to match 'username@e.ntu.edu.sg'
     final RegExp emailRegex =
         RegExp(r'^[A-Za-z0-9]+@e\.ntu\.edu\.sg$', caseSensitive: false);
@@ -24,7 +25,7 @@ class AuthService {
     // Validate email format
     if (!emailRegex.hasMatch(email)) {
       Fluttertoast.showToast(
-        msg: 'Invalid email format',
+        msg: 'Invalid email format. Please use your NTU email address.',
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.SNACKBAR,
         backgroundColor: Colors.black54,
@@ -32,10 +33,13 @@ class AuthService {
         fontSize: 14.0,
       );
       return null;
-    } else if (name.isEmpty) {
+    }
+
+    // Validate name
+    if (name.isEmpty) {
       print('No name entered'); // Debugging statement
       Fluttertoast.showToast(
-        msg: 'Please fill input your name',
+        msg: 'Please enter your name.',
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.SNACKBAR,
         backgroundColor: Colors.black54,
@@ -43,53 +47,77 @@ class AuthService {
         fontSize: 14.0,
       );
       return null;
-    } else {
-      try {
-        // create user
-        UserCredential userCredential = await _auth
-            .createUserWithEmailAndPassword(email: email, password: password);
+    }
 
-        // Force reload the current user to ensure user state is updated
-        await userCredential.user!.reload();
-        User? updatedUser = _auth.currentUser;
-        final uid = updatedUser?.uid;
+    try {
+      // Create user
+      UserCredential userCredential =
+          await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
-        // Ensure uid is not null
-        if (uid != null) {
-          // save user in Firestore
-          _firestore.collection("users").doc(uid).set({'email': email});
+      User? user = userCredential.user;
 
-          // Delay to wait for document to be created on firestore
-          await Future.delayed(Duration(milliseconds: 5000));
+      if (user != null) {
+        // Update the displayName
+        await user.updateDisplayName(name);
 
-          _firestore.collection("users").doc(uid).set({
-            'uid': uid,
-            'name': name,
-            'profileComplete': false,
-          }, SetOptions(merge: true));
-        } else {
-          throw Exception("Failed to retrieve UID");
-        }
+        // Save user in Firestore
+        final uid = user.uid;
+
+        // Prepare user data
+        Map<String, dynamic> userData = {
+          'uid': uid,
+          'email': email,
+          'name': name,
+          'profileComplete': false,
+        };
+
+        // Write to Firestore
+        await _firestore.collection("users").doc(uid).set(userData);
+
+        // Delay to wait for document to be created on firestore
+        await Future.delayed(Duration(milliseconds: 5000));
+
+        _firestore.collection("users").doc(uid).set({
+          'uid': uid,
+          'name': name,
+          'profileComplete': false,
+        }, SetOptions(merge: true));
 
         return userCredential;
-      } on FirebaseAuthException catch (e) {
-        String message = '';
-        if (e.code == 'weak-password') {
-          message = 'The password provided is too weak.';
-        } else if (e.code == 'email-already-in-use') {
-          message = 'An account already exists with that email.';
-        } else {
-          message = e.code;
-        }
-        Fluttertoast.showToast(
-          msg: message,
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.SNACKBAR,
-          backgroundColor: Colors.black54,
-          textColor: Colors.white,
-          fontSize: 14.0,
-        );
+      } else {
+        throw Exception("User creation failed.");
       }
+    } on FirebaseAuthException catch (e) {
+      String message = '';
+      if (e.code == 'weak-password') {
+        message = 'The password provided is too weak.';
+      } else if (e.code == 'email-already-in-use') {
+        message = 'An account already exists with that email.';
+      } else if (e.code == 'invalid-email') {
+        message = 'The email address is not valid.';
+      } else {
+        message = e.message ?? 'An unexpected error occurred.';
+      }
+      Fluttertoast.showToast(
+        msg: message,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.SNACKBAR,
+        backgroundColor: Colors.black54,
+        textColor: Colors.white,
+        fontSize: 14.0,
+      );
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: 'An error occurred. Please try again later.',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.SNACKBAR,
+        backgroundColor: Colors.black54,
+        textColor: Colors.white,
+        fontSize: 14.0,
+      );
     }
     return null;
   }
@@ -161,6 +189,8 @@ class AuthService {
           SetOptions(
               merge: true) // Add this to merge data instead of overwriting
           );
+
+      print(userCredential.user);
 
       return userCredential;
     } on FirebaseAuthException catch (e) {

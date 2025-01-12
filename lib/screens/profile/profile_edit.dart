@@ -18,13 +18,13 @@ class ProfileEditPage extends StatefulWidget {
 }
 
 class _ProfileEditPageState extends State<ProfileEditPage> {
-  //text controllers
+  // Text controllers
   final TextEditingController _bioController = TextEditingController();
 
-  // var to store name
+  // Variables to store profile data
   String? name;
 
-  // initializing strings
+  // Initializing profile fields
   String? selectedYear;
   String? selectedCourse;
   String? selectedCountry;
@@ -32,10 +32,10 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
   String? selectedHall;
   String? selectedStudentType;
 
-  // file
+  // Profile image file
   File? _selectedImage;
 
-  // for existing image URL
+  // Existing image URL
   String? _existingImageUrl;
 
   // Multi-selection for languages and interests
@@ -84,12 +84,12 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
     'Robotics'
   ];
 
-  bool isLoading = true; // Added loading flag
+  bool isLoading = true; // Loading flag
 
   @override
   void initState() {
     super.initState();
-    _loadUserProfile(); // load existing profile data when page initializes
+    _loadUserProfile(); // Load existing profile data when page initializes
   }
 
   Future<void> _loadUserProfile() async {
@@ -108,7 +108,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
 
         // Update the fields with existing data
         setState(() {
-          name = userData['name'];
+          name = userData['name'] ?? user.displayName;
           selectedYear = userData['year'];
           selectedCourse = userData['course'];
           selectedCountry = userData['country'];
@@ -118,18 +118,41 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
           selectedLanguages = List<String>.from(userData['languages'] ?? []);
           selectedInterests = List<String>.from(userData['interests'] ?? []);
           _existingImageUrl = userData['imageUrl'];
+          _bioController.text = userData['bio'] ?? '';
+
+          isLoading = false; // Data is loaded, stop loading
+        });
+      } else {
+        // Update the fields with existing data
+        setState(() {
+          name = user.displayName;
+          selectedYear = null;
+          selectedCourse = null;
+          selectedCountry = null;
+          selectedGender = null;
+          selectedHall = null;
+          selectedStudentType = null;
+          selectedLanguages = [];
+          selectedInterests = [];
+          _existingImageUrl = null;
+          _bioController.text = '';
 
           isLoading = false; // Data is loaded, stop loading
         });
       }
+    } else {
+      // User is not logged in, handle accordingly
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
   Future<void> completeProfile(BuildContext context) async {
-    // get AuthService
+    // Get AuthService
     final authService = AuthService();
 
-    // initiallize user
+    // Initialize user
     User? user = authService.getCurrentUser();
 
     if (user != null) {
@@ -139,18 +162,19 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
         imageUrl = _existingImageUrl;
       }
 
-      // upload profile image if selected
+      // Upload profile image if selected
       if (_selectedImage != null) {
         final storageref = FirebaseStorage.instance
             .ref()
             .child('user_images')
             .child('${user.uid}.jpg');
-        // upload the file
+        // Upload the file
         await storageref.putFile(_selectedImage!);
         imageUrl = await storageref.getDownloadURL();
       }
 
       await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+        'name': name ?? user.displayName ?? '',
         'year': selectedYear,
         'course': selectedCourse,
         'country': selectedCountry,
@@ -162,6 +186,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
         'bio': _bioController.text,
         'profileComplete': true,
         'imageUrl': imageUrl,
+        'uid': user.uid,
       }, SetOptions(merge: true));
 
       // Navigate to HomePage after completing the profile
@@ -189,13 +214,12 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
         ),
       ),
       body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator()) // Show loading indicator
+          ? const Center(child: CircularProgressIndicator())
           : Center(
               child: ListView(
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                 children: [
-                  // profile card
+                  // Profile card
                   Center(
                     child: Container(
                       width: 350,
@@ -216,19 +240,17 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                         children: [
                           UserImagePicker(
                             onPickImage: (pickedImage) {
-                              if (pickedImage != null) {
-                                setState(() {
-                                  _selectedImage = pickedImage;
-                                });
-                              }
+                              setState(() {
+                                _selectedImage = pickedImage;
+                              });
                             },
-                            exisitingImageUrl: _existingImageUrl,
+                            existingImageUrl: _existingImageUrl,
+                            selectedImage: _selectedImage,
                           ),
                           const SizedBox(height: 8),
-
                           // Name
                           Text(
-                            '$name',
+                            name ?? '',
                             style: TextStyle(
                               fontFamily: 'Poppins',
                               fontWeight: FontWeight.bold,
@@ -260,7 +282,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                     },
                   ),
 
-                  // Using MyDropDown for Course
+                  // MyDropDown for Course
                   MyDropDown(
                     titlename: 'Field of Study:',
                     hintText: 'Select Course',
@@ -293,7 +315,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                     },
                   ),
 
-                  // Using MyDropDown for Year
+                  // MyDropDown for Year
                   MyDropDown(
                     titlename: 'Academic Year:',
                     hintText: 'Select Year',
@@ -306,9 +328,9 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                     },
                   ),
 
-                  // Using MyDropDown for Hall
+                  // MyDropDown for Hall
                   MyDropDown(
-                    titlename: 'Accomodation:',
+                    titlename: 'Accommodation:',
                     hintText: 'Select Hall',
                     initialValue: selectedHall,
                     options: [
@@ -332,7 +354,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                       'Tanjong',
                       'Pioneer',
                       'Tamarind',
-                      'Cresent',
+                      'Crescent',
                       'Saraca',
                       'Off Campus'
                     ],
@@ -343,9 +365,9 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                     },
                   ),
 
-                  // Using MyDropDown for Student Type
+                  // MyDropDown for Student Type
                   MyDropDown(
-                    titlename: 'Enrolment Type:',
+                    titlename: 'Enrollment Type:',
                     hintText: 'Select Student Type',
                     initialValue: selectedStudentType,
                     options: ['Local', 'International', 'Exchange'],
@@ -356,7 +378,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                     },
                   ),
 
-                  // Using MyDropDown for Country
+                  // MyDropDown for Country
                   MyDropDown(
                     titlename: 'Home Country:',
                     hintText: 'Select Country',
@@ -393,7 +415,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
 
                   // Multi-select for Languages using MyMultiSelect
                   MyMultiSelect(
-                    titlename: 'Language Spoken:',
+                    titlename: 'Languages Spoken:',
                     hintText: 'Select Languages',
                     options: languages,
                     selectedValues: selectedLanguages,
@@ -419,12 +441,12 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
 
                   const SizedBox(height: 20),
 
-                  // submit the new values to firestore
+                  // Submit the new values to Firestore
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: MyButton2(
                       color: Color.fromARGB(255, 124, 227, 144),
-                      text: "Complete profile",
+                      text: "Complete Profile",
                       onTap: () => completeProfile(context),
                     ),
                   ),
