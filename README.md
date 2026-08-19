@@ -18,9 +18,8 @@ The app's two main experiences are:
 
 - **Find Friends** — create a profile, filter students by characteristics such as
   course, year, hall, country, languages, and interests, then send and manage
-  friend requests.
-- **Chat** — exchange real-time messages with accepted friends, with unread state
-  tracking and push notifications.
+  friend requests. Once connected, use **Chat** to exchange real-time messages
+  with accepted friends, with unread state tracking and push notifications.
 - **Food Finder** — browse campus food by category and landmark/canteen, inspect
   stalls and opening hours, browse menus, and vote stalls up or down.
 
@@ -34,7 +33,7 @@ are the implemented screen flows and their source files:
 | Sign in / sign up | NTU email authentication and account creation | [`lib/screens/user_authentication`](lib/screens/user_authentication) |
 | Home | Welcome panel and entry points for Food Finder and Friend Finder | [`lib/screens/home/home.dart`](lib/screens/home/home.dart) |
 | Friend Finder | Current profile, friend list, notifications, and filter entry point | [`lib/screens/matching/friend_finder.dart`](lib/screens/matching/friend_finder.dart) |
-| Filters and results | Single- and multi-select filters followed by matching profiles | [`lib/screens/matching/filter.dart`](lib/screens/matching/filter.dart), [`filter_results.dart`](lib/screens/matching/filter_results.dart) |
+| Filters and results | Single- and multi-select filters followed by matching profiles | [`lib/screens/matching/filter.dart`](lib/screens/matching/filter.dart), [`lib/screens/matching/filter_results.dart`](lib/screens/matching/filter_results.dart) |
 | Chat | Timestamped message bubbles, unread messages, and a message composer | [`lib/screens/chat/chat.dart`](lib/screens/chat/chat.dart) |
 | Food Finder | Category → canteen → stall → menu navigation | [`lib/screens/food_finder`](lib/screens/food_finder) |
 | Profile and settings | Profile editing, blocked users, and light/dark theme controls | [`lib/screens/profile`](lib/screens/profile), [`lib/screens/settings/settings.dart`](lib/screens/settings/settings.dart) |
